@@ -98,8 +98,7 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
 <div class="tooltip" id="tt"></div>
 
 <script>
-const SHAREPOINT_SITE = 'https://pineccllc.sharepoint.com/sites/service';
-const LIST_NAME = 'TeamCalendarEvents';
+const DATA_URL = 'https://pineccllc.sharepoint.com/sites/service/SiteAssets/calendar-data.json';
 
 const PEOPLE = {
   'David':      {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'both'},
@@ -126,13 +125,10 @@ curM = today.getMonth();
 async function loadData(){
   document.getElementById('last-sync').textContent = 'Refreshing...';
   try {
-    const url = `${SHAREPOINT_SITE}/_api/web/lists/getbytitle('${LIST_NAME}')/items?$select=Title,Person,Customer,ProjectName,EntryType,StartDate,EndDate,Calendar&$top=5000`;
-    const res = await fetch(url, {
-      headers: { 'Accept': 'application/json;odata=verbose' }
-    });
+    const res = await fetch(DATA_URL);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
-    RAW = data.d.results.map(item => ({
+    RAW = data.map(item => ({
       person:  (item.Person||'').trim(),
       label:   (item.Title||'').trim(),
       type:    (item.EntryType||'project').toLowerCase().trim(),
