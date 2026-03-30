@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pine Cove Project Calendar</title>
+<title>Operations Teams Calendars</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:13px}
@@ -65,7 +65,7 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
 <body>
 <div class="app">
 <div class="toolbar">
-  <h1>Pine Cove — Project Calendar</h1>
+  <h1>Operations Teams Calendars</h1>
   <div class="view-toggle">
     <button class="btn active" id="btn-cal" onclick="setView('cal')">Wall Calendar</button>
     <button class="btn" id="btn-gantt" onclick="setView('gantt')">Resource View</button>
@@ -197,9 +197,7 @@ function renderSummary(entries){
   const people=new Set(entries.map(e=>e.person).filter(p=>p&&!p.toUpperCase().startsWith('TBD')));
   const projects=new Set(entries.map(e=>e.fulltitle));
   const tbds=entries.filter(e=>e.person.toUpperCase().startsWith('TBD')).length;
-  bar.innerHTML='<div class="sum-item">People scheduled: <strong>'+people.size+'</strong></div>'+
-    '<div class="sum-item">Active projects: <strong>'+projects.size+'</strong></div>'+
-    (tbds>0?'<div class="sum-item" style="color:#7a5a10">TBD slots: <strong>'+tbds+'</strong> — need staffing</div>':'');
+  bar.innerHTML=(tbds>0?'<div class="sum-item" style="color:#7a5a10">TBD slots: <strong>'+tbds+'</strong> — need staffing</div>':'<div class="sum-item">No TBD slots — all positions staffed</div>');
 }
 
 function renderLegend(){
