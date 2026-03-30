@@ -125,7 +125,7 @@ curM = today.getMonth();
 async function loadData(){
   document.getElementById('last-sync').textContent = 'Refreshing...';
   try {
-    const res = await fetch(DATA_URL);
+    const res = await fetch(DATA_URL, {credentials:'include', headers:{'Accept':'application/json'}});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
     RAW = data.map(item => ({
