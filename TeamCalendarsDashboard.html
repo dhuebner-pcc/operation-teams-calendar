@@ -117,7 +117,7 @@ const DEFAULT_P = {bg:'#d0d0d0',border:'#808080',text:'#303030',team:'both'};
 const TBD_COLOR = {bg:'#c8a870',border:'#7a5a10',text:'#3a2000'};
 
 let RAW = [];
-let curY, curM, activeFilter='all', activeView='cal';
+let curY, curM, activeFilters=new Set(['all']), activeView='cal';
 const today = new Date();
 curY = today.getFullYear();
 curM = today.getMonth();
@@ -150,10 +150,18 @@ function personColor(name, type){
 }
 
 function setFilter(f){
-  activeFilter=f;
-  ['all','geek','green','panda'].forEach(x=>{
-    document.getElementById('f-'+x).classList.toggle('active',x===f);
-  });
+  if(f==='all'){
+    activeFilters=new Set(['all']);
+  } else {
+    activeFilters.delete('all');
+    if(activeFilters.has(f)) activeFilters.delete(f);
+    else activeFilters.add(f);
+    if(activeFilters.size===0) activeFilters=new Set(['all']);
+  }
+  document.getElementById('f-all').classList.toggle('active',activeFilters.has('all'));
+  document.getElementById('f-geek').classList.toggle('active',activeFilters.has('geek'));
+  document.getElementById('f-green').classList.toggle('active',activeFilters.has('green'));
+  document.getElementById('f-panda').classList.toggle('active',activeFilters.has('panda'));
   render();
 }
 function setView(v){
@@ -168,7 +176,8 @@ function shift(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}
 function goToday(){curY=today.getFullYear();curM=today.getMonth();render();}
 
 function filteredEntries(){
-  return RAW.filter(e => activeFilter==='all'||e.cal===activeFilter);
+  if(activeFilters.has('all')) return RAW;
+  return RAW.filter(e=>activeFilters.has(e.cal));
 }
 
 function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
