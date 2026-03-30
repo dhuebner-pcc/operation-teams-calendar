@@ -129,7 +129,7 @@ async function loadData(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
     RAW = data.map(item => ({
-      person:  (item.Person||'').trim(),
+      person:  (item.Person||item.Title||'').split(' - ')[0].trim(),
       label:   (item.Title||'').trim(),
       type:    (typeof item.EntryType==='object'?item.EntryType?.Value:item.EntryType||'project').toLowerCase().trim(),
       start:   (item.StartDate||'').substring(0,10),
