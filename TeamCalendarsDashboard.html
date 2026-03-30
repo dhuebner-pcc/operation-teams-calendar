@@ -95,7 +95,7 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
 const DATA_URL='https://dhuebner-pcc.github.io/operation-teams-calendar/calendar-data.json';
 
 const PEOPLE={
-  'David':      {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'both'},
+  'David':      {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'management'},
   'Mike':       {bg:'#b3d4f0',border:'#0078d4',text:'#004578',team:'green'},
   'Jordan':     {bg:'#ffe4a3',border:'#d47500',text:'#7a3d00',team:'green'},
   'Jaxn':       {bg:'#fff3a3',border:'#b8a000',text:'#5a4800',team:'green'},
@@ -104,7 +104,7 @@ const PEOPLE={
   'Ron':        {bg:'#e8c870',border:'#9a7200',text:'#4a3200',team:'green'},
   'Owen':       {bg:'#f5f0c0',border:'#a09000',text:'#504000',team:'geek'},
   'Todd':       {bg:'#f7c8e0',border:'#c0006a',text:'#600030',team:'green'},
-  'Contractor': {bg:'#b0b0b0',border:'#505050',text:'#202020',team:'both'},
+  'Contractor': {bg:'#b0b0b0',border:'#505050',text:'#202020',team:'supplemental'},
 };
 const TBD_COLOR={bg:'#c8a870',border:'#7a5a10',text:'#3a2000'};
 const DEFAULT_P={bg:'#d0d0d0',border:'#808080',text:'#303030',team:'both'};
@@ -320,13 +320,40 @@ function renderGantt(){
   const days=[];
   for(let i=1;i<=daysInMonth;i++) days.push(new Date(curY,curM,i));
 
+  const monthEntries=entries.filter(function(e){
+    if(!e.start||!e.end) return false;
+    const es=pd(e.start),ee=pd(e.end);
+    return es<=new Date(curY,curM,daysInMonth)&&ee>=new Date(curY,curM,1);
+  });
+
+  const teams=[
+    {key:'management', label:'Project management'},
+    {key:'geek',       label:'Geek team — physical security'},
+    {key:'green',      label:'Green team — infrastructure'},
+    {key:'panda',      label:'Panda — service desk'},
+    {key:'supplemental',label:'Supplemental'},
+    {key:'other',      label:'Other / temporary'},
+  ];
+
+  const allPeopleInData=[];
+  const seen=new Set();
+  monthEntries.forEach(function(e){
+    if(!seen.has(e.person)){seen.add(e.person);allPeopleInData.push(e.person);}
+  });
+
+  function getTeam(name){
+    if(name.toUpperCase().startsWith('TBD')) return 'other';
+    if(PEOPLE[name]) return PEOPLE[name].team;
+    return 'other';
+  }
+
   const wrap=document.getElementById('gantt-view');
   wrap.innerHTML='';
   const gw=document.createElement('div');gw.className='gantt-wrap';
   const tbl=document.createElement('table');tbl.className='gantt-table';
   const thead=document.createElement('thead');
   const hr=document.createElement('tr');
-  const nth=document.createElement('th');nth.textContent='Person';nth.style.textAlign='left';nth.style.minWidth='100px';hr.appendChild(nth);
+  const nth=document.createElement('th');nth.textContent='Person';nth.style.textAlign='left';nth.style.minWidth='120px';hr.appendChild(nth);
   days.forEach(function(d){
     const th=document.createElement('th');
     th.textContent=d.getDate();
@@ -337,26 +364,24 @@ function renderGantt(){
   thead.appendChild(hr);tbl.appendChild(thead);
 
   const tbody=document.createElement('tbody');
-  const teams={geek:'Geek team — physical security',green:'Green team — infrastructure',panda:'Panda — service desk'};
 
-  Object.entries(teams).forEach(function(tEntry){
-    const teamKey=tEntry[0],teamLabel=tEntry[1];
-    if(!activeFilters.has('all')&&!activeFilters.has(teamKey)) return;
+  teams.forEach(function(team){
+    if(!activeFilters.has('all')&&team.key!=='management'&&team.key!=='supplemental'&&team.key!=='other'&&!activeFilters.has(team.key)) return;
 
-    const teamPeople=Object.keys(PEOPLE).filter(function(name){
-      const p=PEOPLE[name];
-      return p.team===teamKey||p.team==='both';
+    const teamPeople=allPeopleInData.filter(function(name){
+      return getTeam(name)===team.key;
     });
+    if(!teamPeople.length) return;
 
     const ghdr=document.createElement('tr');ghdr.className='group-hdr';
-    const gtd=document.createElement('td');gtd.colSpan=daysInMonth+1;gtd.textContent=teamLabel;
+    const gtd=document.createElement('td');gtd.colSpan=daysInMonth+1;gtd.textContent=team.label;
     ghdr.appendChild(gtd);tbody.appendChild(ghdr);
 
     teamPeople.forEach(function(name){
       const tr=document.createElement('tr');
       const ntd=document.createElement('td');ntd.className='name-col';
-      const p=PEOPLE[name]||DEFAULT_P;
-      ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+p.border+';margin-right:5px"></span>'+name;
+      const c=personColor(name,'project');
+      ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.border+';margin-right:5px"></span>'+name;
       tr.appendChild(ntd);
 
       days.forEach(function(d){
@@ -364,7 +389,7 @@ function renderGantt(){
         if(dk(d)===dk(today))td.classList.add('today-td');
         else if(d.getDay()===0||d.getDay()===6)td.classList.add('wknd-td');
 
-        const dayEntries=entries.filter(function(e){
+        const dayEntries=monthEntries.filter(function(e){
           if(!e.start||!e.end) return false;
           return e.person===name&&d>=pd(e.start)&&d<=pd(e.end);
         });
@@ -375,6 +400,7 @@ function renderGantt(){
           const bar=document.createElement('div');
           bar.className='gantt-bar-g';
           bar.style.cssText='background:'+c.bg+';color:'+c.text+';border-left:2px solid '+c.border;
+          bar.title=e.person+' \u2014 '+e.label;
           bar.addEventListener('mouseenter',function(ev){showTt(ev,e);});
           bar.addEventListener('mouseleave',function(){document.getElementById('tt').style.display='none';});
           td.appendChild(bar);
