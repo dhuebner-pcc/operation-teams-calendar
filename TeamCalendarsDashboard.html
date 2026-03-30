@@ -96,15 +96,31 @@ const DATA_URL='https://dhuebner-pcc.github.io/operation-teams-calendar/calendar
 
 const PEOPLE={
   'David':      {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'management'},
-  'Mike':       {bg:'#b3d4f0',border:'#0078d4',text:'#004578',team:'green'},
+  'Ronda':      {bg:'#e0c7f0',border:'#7030a0',text:'#3d1060',team:'geek'},
+  'Todd':       {bg:'#f7c8e0',border:'#c0006a',text:'#600030',team:'geek'},
+  'Ron':        {bg:'#e8c870',border:'#9a7200',text:'#4a3200',team:'geek'},
+  'Owen':       {bg:'#f5f0c0',border:'#a09000',text:'#504000',team:'geek'},
+  'Derrick':    {bg:'#f0b3b3',border:'#c00000',text:'#600000',team:'green'},
   'Jordan':     {bg:'#ffe4a3',border:'#d47500',text:'#7a3d00',team:'green'},
   'Jaxn':       {bg:'#fff3a3',border:'#b8a000',text:'#5a4800',team:'green'},
-  'Derrick':    {bg:'#f0b3b3',border:'#c00000',text:'#600000',team:'geek'},
-  'Ronda':      {bg:'#e0c7f0',border:'#7030a0',text:'#3d1060',team:'geek'},
-  'Ron':        {bg:'#e8c870',border:'#9a7200',text:'#4a3200',team:'green'},
-  'Owen':       {bg:'#f5f0c0',border:'#a09000',text:'#504000',team:'geek'},
-  'Todd':       {bg:'#f7c8e0',border:'#c0006a',text:'#600030',team:'green'},
-  'Contractor': {bg:'#b0b0b0',border:'#505050',text:'#202020',team:'supplemental'},
+  'Mike':       {bg:'#b3d4f0',border:'#0078d4',text:'#004578',team:'green'},
+  'Marion':     {bg:'#c7e8f0',border:'#0078a0',text:'#003a50',team:'panda'},
+  'Kacey':      {bg:'#f0e0c7',border:'#a06030',text:'#503010',team:'panda'},
+  'Chase':      {bg:'#c7f0e0',border:'#009060',text:'#004030',team:'panda'},
+  'Zac':        {bg:'#f0c7e8',border:'#a03080',text:'#501040',team:'panda'},
+  'Curtis':     {bg:'#c7c7f0',border:'#3030a0',text:'#101050',team:'panda'},
+  'Morgan':     {bg:'#f0f0c7',border:'#808000',text:'#404000',team:'panda'},
+  'Baldacci':   {bg:'#e8c7c7',border:'#903030',text:'#401010',team:'panda'},
+  'Contractor': {bg:'#b0b0b0',border:'#505050',text:'#202020',team:'other'},
+};
+
+const CORE_TEAMS={
+  management: ['David'],
+  geek:       ['Ronda','Todd','Ron','Owen'],
+  green:      ['Derrick','Jordan','Jaxn','Mike'],
+  panda:      ['Marion','Kacey','Chase','Zac','Curtis','Morgan','Baldacci'],
+  needstaff:  ['TBD','TBD 1','TBD 2','TBD 3','TBD 4','TBD 5','TBD 6'],
+  other:      ['Contractor'],
 };
 const TBD_COLOR={bg:'#c8a870',border:'#7a5a10',text:'#3a2000'};
 const DEFAULT_P={bg:'#d0d0d0',border:'#808080',text:'#303030',team:'both'};
@@ -331,19 +347,21 @@ function renderGantt(){
     {key:'geek',       label:'Geek team — physical security'},
     {key:'green',      label:'Green team — infrastructure'},
     {key:'panda',      label:'Panda — service desk'},
-    {key:'supplemental',label:'Supplemental'},
+    {key:'needstaff',  label:'Need staff — TBD'},
     {key:'other',      label:'Other / temporary'},
   ];
 
-  const allPeopleInData=[];
-  const seen=new Set();
-  monthEntries.forEach(function(e){
-    if(!seen.has(e.person)){seen.add(e.person);allPeopleInData.push(e.person);}
-  });
+  const dynamicPeople=new Set();
+  monthEntries.forEach(function(e){dynamicPeople.add(e.person);});
+
+  const allCorePeople=new Set();
+  Object.values(CORE_TEAMS).forEach(function(arr){arr.forEach(function(n){allCorePeople.add(n);});});
 
   function getTeam(name){
-    if(name.toUpperCase().startsWith('TBD')) return 'other';
-    if(PEOPLE[name]) return PEOPLE[name].team;
+    if(name.toUpperCase().startsWith('TBD')) return 'needstaff';
+    for(const[team,members] of Object.entries(CORE_TEAMS)){
+      if(members.includes(name)) return team;
+    }
     return 'other';
   }
 
@@ -368,9 +386,11 @@ function renderGantt(){
   teams.forEach(function(team){
     if(!activeFilters.has('all')&&team.key!=='management'&&team.key!=='supplemental'&&team.key!=='other'&&!activeFilters.has(team.key)) return;
 
-    const teamPeople=allPeopleInData.filter(function(name){
-      return getTeam(name)===team.key;
+    const corePeople=CORE_TEAMS[team.key]||[];
+    const extraPeople=[...dynamicPeople].filter(function(n){
+      return getTeam(n)===team.key&&!corePeople.includes(n);
     });
+    const teamPeople=[...corePeople,...extraPeople];
     if(!teamPeople.length) return;
 
     const ghdr=document.createElement('tr');ghdr.className='group-hdr';
