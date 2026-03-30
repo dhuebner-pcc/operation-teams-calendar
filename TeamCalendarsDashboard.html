@@ -6,66 +6,77 @@
 <title>Operations Teams Calendars</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:13px}
-.app{max-width:1400px;margin:0 auto;padding:12px}
-.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;background:#fff;padding:10px 14px;border-radius:6px;border:1px solid #e1dfdd}
-.toolbar h1{font-size:16px;font-weight:600;color:#323130;margin-right:auto}
-.btn{padding:4px 12px;border:1px solid #8a8886;background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:#323130}
-.btn:hover{background:#f3f2f1}
-.btn.active{background:#0078d4;color:#fff;border-color:#0078d4}
+:root{--pc-dark:#2d5a2d;--pc-mid:#3d7a3d;--pc-light:#e8f2e8;--pc-sage:#8fba6a;--pc-border:#d0e4d0;--pc-text:#1a3a1a}
+body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:13px}
+.app{max-width:1400px;margin:0 auto;padding:0}
+.header{background:var(--pc-dark);padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.header-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo-mark{display:flex;align-items:baseline;gap:0;font-size:22px;font-weight:700;line-height:1}
+.logo-pine{color:#fff;letter-spacing:-0.5px}
+.logo-dot{color:var(--pc-sage);margin:0 2px}
+.logo-cove{color:var(--pc-sage);letter-spacing:-0.5px}
+.logo-sub{color:rgba(255,255,255,0.6);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;display:block;margin-top:1px}
+.header-title{color:rgba(255,255,255,0.85);font-size:13px;font-weight:400;border-left:1px solid rgba(255,255,255,0.2);padding-left:12px}
+.toolbar{display:flex;align-items:center;gap:8px;margin:0 10px 10px;flex-wrap:wrap}
+.btn{padding:4px 12px;border:1px solid var(--pc-border);background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:var(--pc-text)}
+.btn:hover{background:var(--pc-light)}
+.btn.active{background:var(--pc-dark);color:#fff;border-color:var(--pc-dark)}
 .btn.nav{padding:4px 8px}
-.sep{width:1px;height:20px;background:#e1dfdd}
-.legend{display:flex;gap:8px;flex-wrap:wrap;background:#fff;padding:8px 14px;border-radius:6px;border:1px solid #e1dfdd;margin-bottom:10px}
-.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:#605e5c}
+.sep{width:1px;height:20px;background:var(--pc-border)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;background:#fff;padding:8px 14px;border-radius:4px;border:1px solid var(--pc-border);margin:0 10px 10px}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:#4a6a4a}
 .leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.cal-wrap{background:#fff;border-radius:6px;border:1px solid #e1dfdd;overflow:hidden}
-.dow-hdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid #e1dfdd}
-.dow-cell{text-align:center;padding:6px 4px;font-size:11px;font-weight:600;color:#605e5c;text-transform:uppercase;letter-spacing:.04em}
-.week{border-bottom:1px solid #e1dfdd}
+.cal-wrap{background:#fff;border-radius:4px;border:1px solid var(--pc-border);overflow:hidden;margin:0 10px}
+.dow-hdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--pc-border);background:var(--pc-light)}
+.dow-cell{text-align:center;padding:6px 4px;font-size:11px;font-weight:600;color:var(--pc-dark);text-transform:uppercase;letter-spacing:.04em}
+.week{border-bottom:1px solid var(--pc-border)}
 .week:last-child{border-bottom:none}
 .day-nums{display:grid;grid-template-columns:repeat(7,1fr)}
-.dn{padding:3px 5px;font-size:11px;color:#605e5c;border-right:1px solid #e1dfdd;min-height:20px}
+.dn{padding:3px 5px;font-size:11px;color:#4a6a4a;border-right:1px solid var(--pc-border);min-height:20px}
 .dn:last-child{border-right:none}
-.dn.today{color:#0078d4;font-weight:700}
-.dn.other{color:#c8c6c4}
-.dn.wknd{background:#faf9f8}
+.dn.today{color:var(--pc-dark);font-weight:700}
+.dn.other{color:#a0b8a0}
+.dn.wknd{background:#f5f8f5}
 .entries-grid{display:grid;grid-template-columns:repeat(7,1fr);position:relative}
-.day-col{border-right:1px solid #e1dfdd;min-height:24px}
+.day-col{border-right:1px solid var(--pc-border);min-height:24px}
 .day-col:last-child{border-right:none}
-.day-col.wknd{background:#faf9f8}
-.day-col.today-col{background:#eff6fc}
-.day-col.other-col{background:#faf9f8}
+.day-col.wknd{background:#f5f8f5}
+.day-col.today-col{background:#e8f5e8}
+.day-col.other-col{background:#f5f8f5}
 .spans{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;gap:1px;padding:2px 0;pointer-events:none}
 .span-row{display:grid;grid-template-columns:repeat(7,1fr);height:18px}
 .bar{height:16px;border-radius:2px;font-size:10px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 5px;line-height:16px;cursor:pointer;pointer-events:all;margin:0 1px;border-left:3px solid transparent}
 .bar:hover{opacity:.85}
-.tooltip{position:fixed;background:#fff;border:1px solid #e1dfdd;border-radius:4px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12);max-width:240px;line-height:1.6}
+.tooltip{position:fixed;background:#fff;border:1px solid var(--pc-border);border-radius:4px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12);max-width:240px;line-height:1.6}
 .tt-name{font-weight:600;margin-bottom:2px}
-.month-lbl{font-size:15px;font-weight:600;min-width:140px;text-align:center}
+.month-lbl{font-size:15px;font-weight:600;min-width:140px;text-align:center;color:var(--pc-dark)}
 .view-toggle{display:flex}
 .view-toggle .btn:first-child{border-radius:3px 0 0 3px;border-right:none}
 .view-toggle .btn:last-child{border-radius:0 3px 3px 0}
-.gantt-wrap{background:#fff;border-radius:6px;border:1px solid #e1dfdd;overflow-x:auto}
+.gantt-wrap{background:#fff;border-radius:4px;border:1px solid var(--pc-border);overflow-x:auto;margin:0 10px}
 .gantt-table{width:100%;border-collapse:collapse;min-width:900px}
-.gantt-table th{font-size:10px;font-weight:600;color:#605e5c;text-align:center;padding:4px 2px;border-bottom:1px solid #e1dfdd;border-right:1px solid #e1dfdd;text-transform:uppercase}
-.gantt-table td{border-bottom:1px solid #e1dfdd;border-right:1px solid #e1dfdd;padding:1px 2px;vertical-align:middle}
+.gantt-table th{font-size:10px;font-weight:600;color:var(--pc-dark);text-align:center;padding:4px 2px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);text-transform:uppercase;background:var(--pc-light)}
+.gantt-table th:first-child{text-align:left;padding-left:8px}
+.gantt-table td{border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);padding:1px 2px;vertical-align:middle}
 .gantt-table td.name-col{padding:3px 8px;font-size:11px;font-weight:500;white-space:nowrap;min-width:100px}
 .gantt-table td.day-td{width:28px;min-width:28px;height:22px;text-align:center}
-.gantt-table td.wknd-td{background:#faf9f8}
-.gantt-table td.today-td{background:#eff6fc}
+.gantt-table td.wknd-td{background:#f5f8f5}
+.gantt-table td.today-td{background:#e8f5e8}
 .gantt-bar-g{display:block;width:100%;height:16px;border-radius:2px;font-size:9px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 3px;line-height:16px;cursor:pointer}
-.group-hdr td{background:#f3f2f1;font-size:10px;font-weight:600;color:#605e5c;padding:3px 8px;text-transform:uppercase;letter-spacing:.05em}
-.summary-bar{display:flex;gap:12px;background:#fff;padding:8px 14px;border-radius:6px;border:1px solid #e1dfdd;margin-bottom:10px;flex-wrap:wrap;align-items:center}
-.sum-item{font-size:12px;color:#605e5c}
-.sum-item strong{color:#323130;font-weight:600}
-.last-sync{font-size:11px;color:#605e5c;margin-left:auto}
+.group-hdr td{background:var(--pc-dark);color:#fff;font-size:10px;font-weight:600;padding:4px 8px;text-transform:uppercase;letter-spacing:.06em}
+.summary-bar{display:flex;gap:12px;background:#fff;padding:8px 14px;border-radius:4px;border:1px solid var(--pc-border);margin:0 10px 10px;flex-wrap:wrap;align-items:center}
+.sum-item{font-size:12px;color:#4a6a4a}
+.sum-item strong{color:var(--pc-dark);font-weight:600}
+.last-sync{font-size:11px;color:#4a6a4a;margin-left:auto}
 .error{text-align:center;padding:40px;color:#c00000;font-size:13px}
 </style>
 </head>
 <body>
 <div class="app">
+<div class="header">
+  <span style="color:#8fba6a;font-size:18px;font-weight:600;letter-spacing:0.02em">Operations Teams Calendars</span>
+</div>
 <div class="toolbar">
-  <h1>Operations Teams Calendars</h1>
   <div class="view-toggle">
     <button class="btn active" id="btn-cal" onclick="setView('cal')">Wall Calendar</button>
     <button class="btn" id="btn-gantt" onclick="setView('gantt')">Resource View</button>
