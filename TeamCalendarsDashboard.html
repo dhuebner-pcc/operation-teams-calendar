@@ -125,7 +125,7 @@ curM = today.getMonth();
 async function loadData(){
   document.getElementById('last-sync').textContent = 'Refreshing...';
   try {
-    const res = await fetch(DATA_URL, {credentials:'include', headers:{'Accept':'application/json'}});
+    const res = await fetch(DATA_URL);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
     RAW = data.map(item => ({
@@ -141,7 +141,7 @@ async function loadData(){
     render();
   } catch(err) {
     document.getElementById('last-sync').textContent = 'Sync failed';
-    document.getElementById('cal-view').innerHTML = `<div class="error">Could not load calendar data.<br>Make sure this page is hosted on your SharePoint site.<br><small>${err.message}</small></div>`;
+    document.getElementById('cal-view').innerHTML = `<div class="error">Error: ${err.message}<br><small>${err.stack||''}</small></div>`;
   }
 }
 
