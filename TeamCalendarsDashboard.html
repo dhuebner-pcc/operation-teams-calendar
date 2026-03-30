@@ -130,8 +130,7 @@ async function loadData(){
     const data = await res.json();
     RAW = data.map(item => ({
       person:  (item.Person||item.Title||'').split(' - ')[0].trim(),
-      label:   (item.Title||'').trim(),
-      type:    (typeof item.EntryType==='object'?item.EntryType?.Value:item.EntryType||'project').toLowerCase().trim(),
+      label:   (item.Title||'').trim(),      type:    (typeof item.EntryType==='object'?item.EntryType?.Value:item.EntryType||'project').toLowerCase().trim(),
       start:   (item.StartDate||'').substring(0,10),
       end:     (item.EndDate||'').substring(0,10),
       cal:     (typeof item.Calendar==='object'?item.Calendar?.Value:item.Calendar||'').toLowerCase().trim(),
@@ -146,7 +145,7 @@ async function loadData(){
 }
 
 function personColor(name, type){
-  if(type==='tbd'||name==='TBD') return TBD_COLOR;
+  if(type==='tbd'||name==='TBD'||name.startsWith('TBD')) return TBD_COLOR;
   return PEOPLE[name]||DEFAULT_P;
 }
 
@@ -284,7 +283,9 @@ function renderCal(){
         const bar=document.createElement('div');
         bar.className='bar';
         bar.style.cssText=`background:${c.bg};border-left-color:${c.border};color:${c.text};grid-column:${startCol+1}/span ${span}`;
-        bar.textContent=e.person+(e.label?' — '+e.label:'');
+        const parts = e.label.split(' - ');
+        const displayLabel = parts.length > 1 ? parts.slice(1).join(' - ') : e.label;
+        bar.textContent = e.person + ' — ' + displayLabel;
         bar.addEventListener('mouseenter',ev=>showTt(ev,e));
         bar.addEventListener('mouseleave',()=>{document.getElementById('tt').style.display='none';});
         sr.appendChild(bar);
