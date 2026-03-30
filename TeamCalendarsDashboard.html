@@ -41,13 +41,9 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
 .bar:hover{opacity:.85}
 .tooltip{position:fixed;background:#fff;border:1px solid #e1dfdd;border-radius:4px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12);max-width:240px;line-height:1.6}
 .tt-name{font-weight:600;margin-bottom:2px}
-.tt-proj{color:#323130}
-.tt-dates{color:#605e5c;font-size:11px;margin-top:2px}
-.tt-type{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;margin-top:3px}
-.month-lbl{font-size:15px;font-weight:600;min-width:140px}
-.view-toggle{display:flex;gap:0}
-.view-toggle .btn{border-radius:0}
-.view-toggle .btn:first-child{border-radius:3px 0 0 3px}
+.month-lbl{font-size:15px;font-weight:600;min-width:140px;text-align:center}
+.view-toggle{display:flex}
+.view-toggle .btn:first-child{border-radius:3px 0 0 3px;border-right:none}
 .view-toggle .btn:last-child{border-radius:0 3px 3px 0}
 .gantt-wrap{background:#fff;border-radius:6px;border:1px solid #e1dfdd;overflow-x:auto}
 .gantt-table{width:100%;border-collapse:collapse;min-width:900px}
@@ -62,9 +58,8 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
 .summary-bar{display:flex;gap:12px;background:#fff;padding:8px 14px;border-radius:6px;border:1px solid #e1dfdd;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .sum-item{font-size:12px;color:#605e5c}
 .sum-item strong{color:#323130;font-weight:600}
-.loading{text-align:center;padding:40px;color:#605e5c;font-size:14px}
-.error{text-align:center;padding:40px;color:#c00000;font-size:13px}
 .last-sync{font-size:11px;color:#605e5c;margin-left:auto}
+.error{text-align:center;padding:40px;color:#c00000;font-size:13px}
 </style>
 </head>
 <body>
@@ -76,10 +71,10 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
     <button class="btn" id="btn-gantt" onclick="setView('gantt')">Resource View</button>
   </div>
   <div class="sep"></div>
-  <button class="btn active" onclick="setFilter('all')" id="f-all">All</button>
-  <button class="btn" onclick="setFilter('geek')" id="f-geek">Geek</button>
-  <button class="btn" onclick="setFilter('green')" id="f-green">Green</button>
-  <button class="btn" onclick="setFilter('panda')" id="f-panda">Panda</button>
+  <button class="btn active" id="f-all" onclick="setFilter('all')">All</button>
+  <button class="btn" id="f-geek" onclick="setFilter('geek')">Geek</button>
+  <button class="btn" id="f-green" onclick="setFilter('green')">Green</button>
+  <button class="btn" id="f-panda" onclick="setFilter('panda')">Panda</button>
   <div class="sep"></div>
   <button class="btn nav" onclick="shift(-1)">&#8592;</button>
   <span class="month-lbl" id="month-lbl"></span>
@@ -89,18 +84,17 @@ body{font-family:Segoe UI,sans-serif;background:#f3f2f1;color:#323130;font-size:
   <button class="btn" onclick="loadData()">&#8635; Refresh</button>
   <span class="last-sync" id="last-sync"></span>
 </div>
-
 <div class="summary-bar" id="summary-bar"><span style="color:#605e5c;font-size:12px">Loading...</span></div>
 <div class="legend" id="legend"></div>
-<div id="cal-view"><div class="loading">Loading calendar data...</div></div>
+<div id="cal-view"></div>
 <div id="gantt-view" style="display:none"></div>
 </div>
 <div class="tooltip" id="tt"></div>
 
 <script>
-const DATA_URL = 'https://dhuebner-pcc.github.io/operation-teams-calendar/calendar-data.json';
+const DATA_URL='https://dhuebner-pcc.github.io/operation-teams-calendar/calendar-data.json';
 
-const PEOPLE = {
+const PEOPLE={
   'David':      {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'both'},
   'Mike':       {bg:'#b3d4f0',border:'#0078d4',text:'#004578',team:'green'},
   'Jordan':     {bg:'#ffe4a3',border:'#d47500',text:'#7a3d00',team:'green'},
@@ -111,41 +105,19 @@ const PEOPLE = {
   'Owen':       {bg:'#f5f0c0',border:'#a09000',text:'#504000',team:'geek'},
   'Todd':       {bg:'#f7c8e0',border:'#c0006a',text:'#600030',team:'green'},
   'Contractor': {bg:'#b0b0b0',border:'#505050',text:'#202020',team:'both'},
-  'TBD':        {bg:'#c8a870',border:'#7a5a10',text:'#3a2000',team:'both'},
 };
-const DEFAULT_P = {bg:'#d0d0d0',border:'#808080',text:'#303030',team:'both'};
-const TBD_COLOR = {bg:'#c8a870',border:'#7a5a10',text:'#3a2000'};
+const TBD_COLOR={bg:'#c8a870',border:'#7a5a10',text:'#3a2000'};
+const DEFAULT_P={bg:'#d0d0d0',border:'#808080',text:'#303030',team:'both'};
 
-let RAW = [];
-let curY, curM, activeFilters=new Set(['all']), activeView='cal';
-const today = new Date();
-curY = today.getFullYear();
-curM = today.getMonth();
+let RAW=[];
+let curY,curM,activeView='cal';
+let activeFilters=new Set(['all']);
+const today=new Date();
+curY=today.getFullYear();
+curM=today.getMonth();
 
-async function loadData(){
-  document.getElementById('last-sync').textContent = 'Refreshing...';
-  try {
-    const res = await fetch(DATA_URL);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    RAW = data.map(item => ({
-      person:  (item.Person||item.Title||'').split(' - ')[0].trim(),
-      label:   (item.Title||'').trim(),      type:    (typeof item.EntryType==='object'?item.EntryType?.Value:item.EntryType||'project').toLowerCase().trim(),
-      start:   (item.StartDate||'').substring(0,10),
-      end:     (item.EndDate||'').substring(0,10),
-      cal:     (typeof item.Calendar==='object'?item.Calendar?.Value:item.Calendar||'').toLowerCase().trim(),
-    })).filter(e => e.start && e.end);
-    const now = new Date();
-    document.getElementById('last-sync').textContent = 'Last synced: '+now.toLocaleTimeString();
-    render();
-  } catch(err) {
-    document.getElementById('last-sync').textContent = 'Sync failed';
-    document.getElementById('cal-view').innerHTML = `<div class="error">Error: ${err.message}<br><small>${err.stack||''}</small></div>`;
-  }
-}
-
-function personColor(name, type){
-  if(type==='tbd'||name==='TBD'||name.startsWith('TBD')) return TBD_COLOR;
+function personColor(name,type){
+  if(!name||name.toUpperCase().startsWith('TBD')||type==='tbd') return TBD_COLOR;
   return PEOPLE[name]||DEFAULT_P;
 }
 
@@ -164,6 +136,7 @@ function setFilter(f){
   document.getElementById('f-panda').classList.toggle('active',activeFilters.has('panda'));
   render();
 }
+
 function setView(v){
   activeView=v;
   document.getElementById('btn-cal').classList.toggle('active',v==='cal');
@@ -172,6 +145,7 @@ function setView(v){
   document.getElementById('gantt-view').style.display=v==='gantt'?'':'none';
   render();
 }
+
 function shift(d){curM+=d;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}render();}
 function goToday(){curY=today.getFullYear();curM=today.getMonth();render();}
 
@@ -183,30 +157,63 @@ function filteredEntries(){
 function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
+async function loadData(){
+  document.getElementById('last-sync').textContent='Refreshing...';
+  try{
+    const res=await fetch(DATA_URL+'?t='+Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    RAW=data.map(item=>{
+      const title=(item.Title||'').trim();
+      const parts=title.split(' - ');
+      const person=parts[0].trim();
+      const entryType=item.EntryType;
+      const calendar=item.Calendar;
+      const type=(typeof entryType==='object'?entryType&&entryType.Value:entryType||'project').toLowerCase().trim();
+      const cal=(typeof calendar==='object'?calendar&&calendar.Value:calendar||'').toLowerCase().trim();
+      const parts2=title.split(' - ');
+      const displayLabel=parts2.length>1?parts2.slice(1).join(' - '):title;
+      return{
+        person,
+        label:displayLabel,
+        fulltitle:title,
+        type,
+        start:(item.StartDate||'').substring(0,10),
+        end:(item.EndDate||'').substring(0,10),
+        cal,
+      };
+    }).filter(e=>e.start&&e.end);
+    const now=new Date();
+    document.getElementById('last-sync').textContent='Last synced: '+now.toLocaleTimeString();
+    render();
+  } catch(err){
+    document.getElementById('last-sync').textContent='Sync failed';
+    document.getElementById('cal-view').innerHTML='<div class="error">Error: '+err.message+'</div>';
+  }
+}
+
 function renderSummary(entries){
   const bar=document.getElementById('summary-bar');
-  const people=new Set(entries.map(e=>e.person).filter(p=>p&&p!=='TBD'));
-  const projects=new Set(entries.map(e=>e.label));
-  const tbds=entries.filter(e=>e.person==='TBD'||e.type==='tbd').length;
-  bar.innerHTML=`
-    <div class="sum-item">People scheduled: <strong>${people.size}</strong></div>
-    <div class="sum-item">Active projects: <strong>${projects.size}</strong></div>
-    ${tbds>0?`<div class="sum-item" style="color:#7a5a10">TBD slots: <strong>${tbds}</strong> — need staffing</div>`:''}
-  `;
+  const people=new Set(entries.map(e=>e.person).filter(p=>p&&!p.toUpperCase().startsWith('TBD')));
+  const projects=new Set(entries.map(e=>e.fulltitle));
+  const tbds=entries.filter(e=>e.person.toUpperCase().startsWith('TBD')).length;
+  bar.innerHTML='<div class="sum-item">People scheduled: <strong>'+people.size+'</strong></div>'+
+    '<div class="sum-item">Active projects: <strong>'+projects.size+'</strong></div>'+
+    (tbds>0?'<div class="sum-item" style="color:#7a5a10">TBD slots: <strong>'+tbds+'</strong> — need staffing</div>':'');
 }
 
 function renderLegend(){
   const leg=document.getElementById('legend');
   leg.innerHTML='';
-  Object.entries(PEOPLE).forEach(([name,p])=>{
-    if(name==='TBD') return;
-    if(activeFilters.has('all')||activeFilters.has(p.team)||p.team==='both') {
+  Object.entries(PEOPLE).forEach(function(entry){
+    const name=entry[0],p=entry[1];
+    if(!activeFilters.has('all')&&!activeFilters.has(p.team)&&p.team!=='both') return;
     const d=document.createElement('div');d.className='leg';
-    d.innerHTML=`<span class="leg-dot" style="background:${p.border}"></span>${name}`;
+    d.innerHTML='<span class="leg-dot" style="background:'+p.border+'"></span>'+name;
     leg.appendChild(d);
   });
   const tbd=document.createElement('div');tbd.className='leg';
-  tbd.innerHTML=`<span class="leg-dot" style="background:#7a5a10"></span>TBD — unstaffed`;
+  tbd.innerHTML='<span class="leg-dot" style="background:#7a5a10"></span>TBD — unstaffed';
   leg.appendChild(tbd);
 }
 
@@ -219,9 +226,8 @@ function renderCal(){
   const wrap=document.getElementById('cal-view');
   wrap.innerHTML='';
   const cw=document.createElement('div');cw.className='cal-wrap';
-
   const dowHdr=document.createElement('div');dowHdr.className='dow-hdr';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){
     const c=document.createElement('div');c.className='dow-cell';c.textContent=d;dowHdr.appendChild(c);
   });
   cw.appendChild(dowHdr);
@@ -230,14 +236,13 @@ function renderCal(){
   let ws=new Date(first);ws.setDate(ws.getDate()-ws.getDay());
 
   while(true){
-    if(ws.getFullYear()>curY||(ws.getFullYear()===curY&&ws.getMonth()>curM&&ws.getDay()===0)) break;
     const days=[];
     for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);days.push(d);}
     if(days[0].getMonth()>curM&&days[0].getFullYear()>=curY) break;
 
     const week=document.createElement('div');week.className='week';
     const dnRow=document.createElement('div');dnRow.className='day-nums';
-    days.forEach(d=>{
+    days.forEach(function(d){
       const c=document.createElement('div');c.className='dn';
       if(d.getMonth()!==curM)c.classList.add('other');
       else if(dk(d)===dk(today))c.classList.add('today');
@@ -248,7 +253,7 @@ function renderCal(){
     week.appendChild(dnRow);
 
     const eg=document.createElement('div');eg.className='entries-grid';
-    days.forEach(d=>{
+    days.forEach(function(d){
       const col=document.createElement('div');col.className='day-col';
       if(dk(d)===dk(today))col.classList.add('today-col');
       else if(d.getDay()===0||d.getDay()===6)col.classList.add('wknd');
@@ -256,21 +261,21 @@ function renderCal(){
       eg.appendChild(col);
     });
 
-    const weekEntries=entries.filter(e=>{
+    const weekEntries=entries.filter(function(e){
       if(!e.start||!e.end) return false;
       return pd(e.start)<=days[6]&&pd(e.end)>=days[0];
     });
 
     const rows=[];
-    weekEntries.forEach(e=>{
+    weekEntries.forEach(function(e){
       const es=pd(e.start),ee=pd(e.end);
-      const startCol=es<days[0]?0:days.findIndex(d=>dk(d)===dk(es));
-      const eiIdx=days.findIndex(d=>dk(d)===dk(ee));
+      const sc=es<days[0]?0:days.findIndex(function(d){return dk(d)===dk(es);});
+      const eiIdx=days.findIndex(function(d){return dk(d)===dk(ee);});
+      const startCol=sc<0?0:sc;
       const endCol=ee>days[6]?6:(eiIdx===-1?6:eiIdx);
-      if(startCol<0) return;
       let placed=false;
       for(let r=0;r<rows.length;r++){
-        if(rows[r].every(x=>x.endCol<startCol||x.startCol>endCol)){
+        if(rows[r].every(function(x){return x.endCol<startCol||x.startCol>endCol;})){
           rows[r].push({e,startCol,endCol});placed=true;break;
         }
       }
@@ -278,25 +283,24 @@ function renderCal(){
     });
 
     const minH=(rows.length*20+6)+'px';
-    eg.querySelectorAll('.day-col').forEach(c=>c.style.minHeight=minH);
+    eg.querySelectorAll('.day-col').forEach(function(c){c.style.minHeight=minH;});
 
     const sl=document.createElement('div');sl.className='spans';
-    rows.forEach(row=>{
+    rows.forEach(function(row){
       const sr=document.createElement('div');sr.className='span-row';
-      const sorted=[...row].sort((a,b)=>a.startCol-b.startCol);
+      const sorted=row.slice().sort(function(a,b){return a.startCol-b.startCol;});
       let col=0;
-      sorted.forEach(({e,startCol,endCol})=>{
+      sorted.forEach(function(item){
+        const e=item.e,startCol=item.startCol,endCol=item.endCol;
         while(col<startCol){const emp=document.createElement('div');sr.appendChild(emp);col++;}
         const span=endCol-startCol+1;
         const c=personColor(e.person,e.type);
         const bar=document.createElement('div');
         bar.className='bar';
-        bar.style.cssText=`background:${c.bg};border-left-color:${c.border};color:${c.text};grid-column:${startCol+1}/span ${span}`;
-        const parts = e.label.split(' - ');
-        const displayLabel = parts.length > 1 ? parts.slice(1).join(' - ') : e.label;
-        bar.textContent = e.person + ' — ' + displayLabel;
-        bar.addEventListener('mouseenter',ev=>showTt(ev,e));
-        bar.addEventListener('mouseleave',()=>{document.getElementById('tt').style.display='none';});
+        bar.style.cssText='background:'+c.bg+';border-left-color:'+c.border+';color:'+c.text+';grid-column:'+(startCol+1)+'/span '+span;
+        bar.textContent=e.person+' \u2014 '+e.label;
+        bar.addEventListener('mouseenter',function(ev){showTt(ev,e);});
+        bar.addEventListener('mouseleave',function(){document.getElementById('tt').style.display='none';});
         sr.appendChild(bar);
         col=endCol+1;
       });
@@ -318,23 +322,14 @@ function renderGantt(){
   const days=[];
   for(let i=1;i<=daysInMonth;i++) days.push(new Date(curY,curM,i));
 
-  const seenPeople=new Set(RAW.map(e=>e.person).filter(p=>p&&p!=='TBD'));
-  const people=Object.keys(PEOPLE).filter(name=>{
-    if(name==='TBD') return false;
-    const p=PEOPLE[name];
-    if(activeFilter==='all') return seenPeople.has(name)||true;
-    return p.team===activeFilter||p.team==='both';
-  });
-
   const wrap=document.getElementById('gantt-view');
   wrap.innerHTML='';
   const gw=document.createElement('div');gw.className='gantt-wrap';
   const tbl=document.createElement('table');tbl.className='gantt-table';
-
   const thead=document.createElement('thead');
   const hr=document.createElement('tr');
   const nth=document.createElement('th');nth.textContent='Person';nth.style.textAlign='left';nth.style.minWidth='100px';hr.appendChild(nth);
-  days.forEach(d=>{
+  days.forEach(function(d){
     const th=document.createElement('th');
     th.textContent=d.getDate();
     if(dk(d)===dk(today))th.style.color='#0078d4';
@@ -346,31 +341,32 @@ function renderGantt(){
   const tbody=document.createElement('tbody');
   const teams={geek:'Geek team — physical security',green:'Green team — infrastructure',panda:'Panda — service desk'};
 
-  Object.entries(teams).forEach(([teamKey,teamLabel])=>{
+  Object.entries(teams).forEach(function(tEntry){
+    const teamKey=tEntry[0],teamLabel=tEntry[1];
     if(!activeFilters.has('all')&&!activeFilters.has(teamKey)) return;
-    const teamPeople=people.filter(n=>{
-      const p=PEOPLE[n];
-      return p&&(p.team===teamKey||p.team==='both');
+
+    const teamPeople=Object.keys(PEOPLE).filter(function(name){
+      const p=PEOPLE[name];
+      return p.team===teamKey||p.team==='both';
     });
-    if(!teamPeople.length) return;
 
     const ghdr=document.createElement('tr');ghdr.className='group-hdr';
     const gtd=document.createElement('td');gtd.colSpan=daysInMonth+1;gtd.textContent=teamLabel;
     ghdr.appendChild(gtd);tbody.appendChild(ghdr);
 
-    teamPeople.forEach(name=>{
+    teamPeople.forEach(function(name){
       const tr=document.createElement('tr');
       const ntd=document.createElement('td');ntd.className='name-col';
       const p=PEOPLE[name]||DEFAULT_P;
-      ntd.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.border};margin-right:5px"></span>${name}`;
+      ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+p.border+';margin-right:5px"></span>'+name;
       tr.appendChild(ntd);
 
-      days.forEach(d=>{
+      days.forEach(function(d){
         const td=document.createElement('td');td.className='day-td';
         if(dk(d)===dk(today))td.classList.add('today-td');
         else if(d.getDay()===0||d.getDay()===6)td.classList.add('wknd-td');
 
-        const dayEntries=entries.filter(e=>{
+        const dayEntries=entries.filter(function(e){
           if(!e.start||!e.end) return false;
           return e.person===name&&d>=pd(e.start)&&d<=pd(e.end);
         });
@@ -380,10 +376,9 @@ function renderGantt(){
           const c=personColor(e.person,e.type);
           const bar=document.createElement('div');
           bar.className='gantt-bar-g';
-          bar.style.cssText=`background:${c.bg};color:${c.text};border-left:2px solid ${c.border}`;
-          bar.title=e.person+' — '+e.label;
-          bar.addEventListener('mouseenter',ev=>showTt(ev,e));
-          bar.addEventListener('mouseleave',()=>{document.getElementById('tt').style.display='none';});
+          bar.style.cssText='background:'+c.bg+';color:'+c.text+';border-left:2px solid '+c.border;
+          bar.addEventListener('mouseenter',function(ev){showTt(ev,e);});
+          bar.addEventListener('mouseleave',function(){document.getElementById('tt').style.display='none';});
           td.appendChild(bar);
           if(dayEntries.length>1) td.style.outline='2px solid #c00000';
         }
@@ -401,12 +396,10 @@ function showTt(ev,e){
   tt.style.display='block';
   const typeLabel={project:'Project',travel:'Travel day',off:'Off / PTO',remote:'Remote',tbd:'TBD — needs staffing'};
   const c=personColor(e.person,e.type);
-  tt.innerHTML=`
-    <div class="tt-name" style="color:${c.border}">${e.person||'Unknown'}</div>
-    <div class="tt-proj">${e.label||''}</div>
-    <div class="tt-dates">${e.start} → ${e.end}</div>
-    <span class="tt-type" style="background:${c.bg};color:${c.text}">${typeLabel[e.type]||e.type}</span>
-  `;
+  tt.innerHTML='<div class="tt-name" style="color:'+c.border+'">'+e.person+'</div>'+
+    '<div style="color:#323130">'+e.label+'</div>'+
+    '<div style="color:#605e5c;font-size:11px;margin-top:2px">'+e.start+' \u2192 '+e.end+'</div>'+
+    '<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;margin-top:3px;background:'+c.bg+';color:'+c.text+'">'+(typeLabel[e.type]||e.type)+'</span>';
   tt.style.left=(ev.clientX+14)+'px';
   tt.style.top=(ev.clientY-10)+'px';
 }
