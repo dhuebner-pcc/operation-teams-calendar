@@ -131,10 +131,10 @@ async function loadData(){
     RAW = data.map(item => ({
       person:  (item.Person||'').trim(),
       label:   (item.Title||'').trim(),
-      type:    (item.EntryType||'project').toLowerCase().trim(),
+      type:    (typeof item.EntryType==='object'?item.EntryType?.Value:item.EntryType||'project').toLowerCase().trim(),
       start:   (item.StartDate||'').substring(0,10),
       end:     (item.EndDate||'').substring(0,10),
-      cal:     (item.Calendar||'').toLowerCase().trim(),
+      cal:     (typeof item.Calendar==='object'?item.Calendar?.Value:item.Calendar||'').toLowerCase().trim(),
     })).filter(e => e.start && e.end);
     const now = new Date();
     document.getElementById('last-sync').textContent = 'Last synced: '+now.toLocaleTimeString();
