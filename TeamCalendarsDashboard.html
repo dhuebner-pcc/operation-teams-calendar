@@ -200,7 +200,7 @@ function renderLegend(){
   leg.innerHTML='';
   Object.entries(PEOPLE).forEach(([name,p])=>{
     if(name==='TBD') return;
-    if(activeFilter!=='all'&&p.team!==activeFilter&&p.team!=='both') return;
+    if(activeFilters.has('all')||activeFilters.has(p.team)||p.team==='both') {
     const d=document.createElement('div');d.className='leg';
     d.innerHTML=`<span class="leg-dot" style="background:${p.border}"></span>${name}`;
     leg.appendChild(d);
@@ -347,7 +347,7 @@ function renderGantt(){
   const teams={geek:'Geek team — physical security',green:'Green team — infrastructure',panda:'Panda — service desk'};
 
   Object.entries(teams).forEach(([teamKey,teamLabel])=>{
-    if(activeFilter!=='all'&&activeFilter!==teamKey) return;
+    if(!activeFilters.has('all')&&!activeFilters.has(teamKey)) return;
     const teamPeople=people.filter(n=>{
       const p=PEOPLE[n];
       return p&&(p.team===teamKey||p.team==='both');
