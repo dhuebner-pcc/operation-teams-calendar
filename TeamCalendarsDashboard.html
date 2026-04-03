@@ -515,7 +515,7 @@ function renderCap(){
 
   teamKeys.forEach(teamKey=>{
     const teamEntries=RAW.filter(e=>e.cal===teamKey);
-    const teamMembers=[...（CORE_TEAMS[teamKey]||[])];
+    const teamMembers=(CORE_TEAMS[teamKey]||[]).slice();
     const dynamicMembers=[...new Set(teamEntries.map(e=>e.person))].filter(p=>!teamMembers.includes(p)&&!p.toUpperCase().startsWith('TBD'));
     const allMembers=[...teamMembers,...dynamicMembers];
 
