@@ -175,9 +175,9 @@ function updateLabel(){
 
 function shiftYear(d){curY+=d;updateLabel();render();}
 function shiftWeek(d){
-  const first=new Date(curY,curM,1);
-  first.setDate(first.getDate()+d*7);
-  curY=first.getFullYear();curM=first.getMonth();
+  const dt=new Date(curY,curM,15);
+  dt.setDate(dt.getDate()+d*7);
+  curY=dt.getFullYear();curM=dt.getMonth();
   updateLabel();render();
 }
 function shiftMonth(d){
