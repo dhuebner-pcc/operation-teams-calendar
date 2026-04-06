@@ -11,11 +11,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .app{max-width:1400px;margin:0 auto}
 .header{background:var(--pc-dark);padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .toolbar{display:flex;align-items:center;gap:8px;margin:0 10px 6px;flex-wrap:wrap}
-.slider-row{display:flex;align-items:center;gap:10px;margin:0 10px 10px;background:#fff;padding:6px 14px;border-radius:4px;border:1px solid var(--pc-border)}
-.slider-row input[type=range]{flex:1;accent-color:var(--pc-dark)}
-.slider-label{font-size:11px;color:#4a6a4a;white-space:nowrap;min-width:80px;text-align:center;font-weight:500;color:var(--pc-dark)}
-.slider-months{display:flex;justify-content:space-between;flex:1;padding:0 2px}
-.slider-month{font-size:9px;color:#4a6a4a}
+
 .btn{padding:4px 12px;border:1px solid var(--pc-border);background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:var(--pc-text);line-height:1.4}
 .btn:hover{background:var(--pc-light)}
 .btn.active{background:var(--pc-dark);color:#fff;border-color:var(--pc-dark)}
@@ -110,11 +106,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
   <div class="sep"></div>
   <button class="btn" onclick="loadData()">&#8635; Refresh</button>
 </div>
-<div class="slider-row">
-  <span style="font-size:11px;color:#4a6a4a;white-space:nowrap" id="slider-year">2026</span>
-  <input type="range" id="month-slider" min="0" max="23" value="0" oninput="onSlider(this.value)">
-  <span class="slider-label" id="slider-lbl"></span>
-</div>
+
 <div class="summary-bar" id="summary-bar"><span style="color:#4a6a4a;font-size:12px">Loading...</span></div>
 <div class="legend" id="legend"></div>
 <div id="person-note" class="person-note" style="display:none">Click a person to filter. Click multiple to stack. Click again to deselect.</div>
@@ -175,30 +167,17 @@ function personColor(name,type){
 function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-function updateSlider(){
-  const idx=(curY-baseYear)*12+curM;
-  const slider=document.getElementById('month-slider');
-  slider.value=Math.max(0,Math.min(23,idx));
-  document.getElementById('slider-lbl').textContent=MONTHS[curM]+' '+curY;
-  document.getElementById('slider-year').textContent=baseYear+' — '+(baseYear+1);
+function updateLabel(){
   document.getElementById('month-lbl').textContent=MONTHS[curM]+' '+curY;
-}
-
-function onSlider(val){
-  const v=parseInt(val);
-  curY=baseYear+Math.floor(v/12);
-  curM=v%12;
-  updateSlider();
-  render();
 }
 
 function shiftWeek(d){
   const first=new Date(curY,curM,1);
   first.setDate(first.getDate()+d*7);
   curY=first.getFullYear();curM=first.getMonth();
-  updateSlider();render();
+  updateLabel();render();
 }
-function goToday(){curY=today.getFullYear();curM=today.getMonth();updateSlider();render();}
+function goToday(){curY=today.getFullYear();curM=today.getMonth();updateLabel();render();}
 
 function setFilter(f){
   if(f==='all'){activeFilters=new Set(['all']);}
@@ -244,7 +223,7 @@ async function loadData(){
       return{person,label:displayLabel,fulltitle:title,type,start:(item.StartDate||'').substring(0,10),end:(item.EndDate||'').substring(0,10),cal:calVal};
     }).filter(e=>e.start&&e.end);
     document.getElementById('last-sync').textContent='Last synced: '+new Date().toLocaleTimeString();
-    updateSlider();render();
+    updateLabel();render();
   }catch(err){
     document.getElementById('last-sync').textContent='Sync failed';
     document.getElementById('cal-view').innerHTML='<div class="error">Error: '+err.message+'</div>';
