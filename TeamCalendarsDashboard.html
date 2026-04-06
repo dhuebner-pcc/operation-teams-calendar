@@ -99,9 +99,9 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
   <button class="btn btn-labeled" id="f-green" onclick="setFilter('green')"><span class="btn-main">Green</span><span class="btn-sub">Infrastructure</span></button>
   <button class="btn btn-labeled" id="f-panda" onclick="setFilter('panda')"><span class="btn-main">Panda</span><span class="btn-sub">Service</span></button>
   <div class="sep"></div>
-  <button class="btn nav" onclick="shiftWeek(-1)">&#8592;</button>
+  <button class="btn nav" onclick="shiftMonth(-1)">&#8592;</button>
   <span class="month-lbl" id="month-lbl"></span>
-  <button class="btn nav" onclick="shiftWeek(1)">&#8594;</button>
+  <button class="btn nav" onclick="shiftMonth(1)">&#8594;</button>
   <button class="btn" onclick="goToday()">Today</button>
   <div class="sep"></div>
   <button class="btn" onclick="loadData()">&#8635; Refresh</button>
@@ -171,10 +171,10 @@ function updateLabel(){
   document.getElementById('month-lbl').textContent=MONTHS[curM]+' '+curY;
 }
 
-function shiftWeek(d){
-  const first=new Date(curY,curM,1);
-  first.setDate(first.getDate()+d*7);
-  curY=first.getFullYear();curM=first.getMonth();
+function shiftMonth(d){
+  curM+=d;
+  if(curM>11){curM=0;curY++;}
+  if(curM<0){curM=11;curY--;}
   updateLabel();render();
 }
 function goToday(){curY=today.getFullYear();curM=today.getMonth();updateLabel();render();}
