@@ -106,18 +106,16 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
   <button class="btn btn-labeled" id="f-green" onclick="setFilter('green')"><span class="btn-main">Green</span><span class="btn-sub">Infrastructure</span></button>
   <button class="btn btn-labeled" id="f-panda" onclick="setFilter('panda')"><span class="btn-main">Panda</span><span class="btn-sub">Service</span></button>
   <div class="sep"></div>
-  <button class="btn nav" onclick="shiftMonth(-1)">&#8592;</button>
+  <button class="btn nav" title="Previous month" onclick="shiftMonth(-1)">&#171;</button>
+  <button class="btn nav" title="Previous week" onclick="shiftWeek(-1)">&#8592;</button>
   <span class="month-lbl" id="month-lbl"></span>
-  <button class="btn nav" onclick="shiftMonth(1)">&#8594;</button>
+  <button class="btn nav" title="Next week" onclick="shiftWeek(1)">&#8594;</button>
+  <button class="btn nav" title="Next month" onclick="shiftMonth(1)">&#187;</button>
   <button class="btn" onclick="goToday()">Today</button>
   <div class="sep"></div>
   <button class="btn" onclick="loadData()">&#8635; Refresh</button>
 </div>
-<div class="slider-row">
-  <span style="font-size:11px;color:#4a6a4a;white-space:nowrap;min-width:30px" id="slider-year-start"></span>
-  <input type="range" id="month-slider" min="0" max="23" value="0" step="1" oninput="onSlider(this.value)">
-  <span class="slider-lbl" id="slider-lbl"></span>
-</div>
+
 <div class="summary-bar" id="summary-bar"><span style="color:#4a6a4a;font-size:12px">Loading...</span></div>
 <div class="legend" id="legend"></div>
 <div id="person-note" class="person-note" style="display:none">Click a person to filter. Click multiple to stack. Click again to deselect.</div>
@@ -192,6 +190,13 @@ function onSlider(val){
   curM=v%12;
   syncSlider();
   render();
+}
+
+function shiftWeek(d){
+  const dt=new Date(curY,curM,1);
+  dt.setDate(dt.getDate()+d*7);
+  curY=dt.getFullYear();curM=dt.getMonth();
+  syncSlider();render();
 }
 
 function shiftMonth(d){
