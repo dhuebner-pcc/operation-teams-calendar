@@ -177,20 +177,26 @@ function updateLabel(){
   document.getElementById('month-lbl').textContent=MONTHS[curM]+' '+curY;
 }
 
-function shiftYear(d){curY+=d;updateLabel();render();}
 function shiftWeek(d){
-  const dt=new Date(curY,curM,15);
-  dt.setDate(dt.getDate()+d*7);
-  curY=dt.getFullYear();curM=dt.getMonth();
+  viewStart=new Date(viewStart);
+  viewStart.setDate(viewStart.getDate()+d*7);
+  curY=viewStart.getFullYear();curM=viewStart.getMonth();
   updateLabel();render();
 }
 function shiftMonth(d){
   curM+=d;
   if(curM>11){curM=0;curY++;}
   if(curM<0){curM=11;curY--;}
+  viewStart=new Date(curY,curM,1);
+  viewStart.setDate(viewStart.getDate()-viewStart.getDay());
   updateLabel();render();
 }
-function goToday(){curY=today.getFullYear();curM=today.getMonth();updateLabel();render();}
+function goToday(){
+  viewStart=new Date(today);
+  viewStart.setDate(today.getDate()-today.getDay());
+  curY=today.getFullYear();curM=today.getMonth();
+  updateLabel();render();
+}
 
 function setFilter(f){
   if(f==='all'){activeFilters=new Set(['all']);}
@@ -236,6 +242,9 @@ async function loadData(){
       return{person,label:displayLabel,fulltitle:title,type,start:(item.StartDate||'').substring(0,10),end:(item.EndDate||'').substring(0,10),cal:calVal};
     }).filter(e=>e.start&&e.end);
     document.getElementById('last-sync').textContent='Last synced: '+new Date().toLocaleTimeString();
+    viewStart=new Date(today);
+    viewStart.setDate(today.getDate()-today.getDay());
+    curY=viewStart.getFullYear();curM=viewStart.getMonth();
     updateLabel();render();
   }catch(err){
     document.getElementById('last-sync').textContent='Sync failed';
