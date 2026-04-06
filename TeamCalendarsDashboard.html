@@ -12,10 +12,10 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .header{background:var(--pc-dark);padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .toolbar{display:flex;align-items:center;gap:8px;margin:0 10px 6px;flex-wrap:wrap}
 .slider-row{display:flex;align-items:center;gap:10px;margin:0 10px 10px;background:#fff;padding:6px 14px;border-radius:4px;border:1px solid var(--pc-border)}
-.slider-row input[type=range]{flex:1;accent-color:var(--pc-dark);cursor:pointer}
-.slider-lbl{font-size:12px;font-weight:600;color:var(--pc-dark);min-width:110px;text-align:right}
-.slider-ticks{display:flex;justify-content:space-between;flex:1;pointer-events:none}
-.slider-tick{font-size:9px;color:#888;text-align:center}
+.slider-row input[type=range]{flex:1;accent-color:var(--pc-dark)}
+.slider-label{font-size:11px;color:#4a6a4a;white-space:nowrap;min-width:80px;text-align:center;font-weight:500;color:var(--pc-dark)}
+.slider-months{display:flex;justify-content:space-between;flex:1;padding:0 2px}
+.slider-month{font-size:9px;color:#4a6a4a}
 .btn{padding:4px 12px;border:1px solid var(--pc-border);background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:var(--pc-text);line-height:1.4}
 .btn:hover{background:var(--pc-light)}
 .btn.active{background:var(--pc-dark);color:#fff;border-color:var(--pc-dark)}
@@ -49,11 +49,10 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .bar{height:16px;border-radius:2px;font-size:10px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 5px;line-height:16px;cursor:pointer;pointer-events:all;margin:0 1px;border-left:3px solid transparent}
 .bar:hover{opacity:.85}
 .tooltip{position:fixed;background:#fff;border:1px solid var(--pc-border);border-radius:4px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12);max-width:240px;line-height:1.6}
-.month-lbl{font-size:15px;font-weight:600;min-width:130px;text-align:center;color:var(--pc-dark)}
+.month-lbl{font-size:15px;font-weight:600;min-width:160px;text-align:center;color:var(--pc-dark)}
 .view-toggle{display:flex}
 .view-toggle .btn:first-child{border-radius:3px 0 0 3px;border-right:none}
 .view-toggle .btn:last-child{border-radius:0 3px 3px 0}
-.view-toggle .btn:not(:first-child):not(:last-child){border-radius:0;border-right:none}
 .gantt-wrap{background:#fff;border-radius:4px;border:1px solid var(--pc-border);overflow-x:auto;margin:0 10px}
 .gantt-table{width:100%;border-collapse:collapse;min-width:900px}
 .gantt-table th{font-size:10px;font-weight:600;color:var(--pc-dark);text-align:center;padding:4px 2px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);text-transform:uppercase;background:var(--pc-light)}
@@ -79,13 +78,11 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .cap-table{width:100%;border-collapse:collapse}
 .cap-table th{background:var(--pc-light);color:var(--pc-dark);font-size:11px;font-weight:600;padding:6px 12px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);text-align:right}
 .cap-table th:first-child{text-align:left}
-.cap-table td{padding:5px 12px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);font-size:12px;text-align:right;color:var(--pc-text)}
+.cap-table td{padding:5px 12px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);font-size:12px;text-align:right}
 .cap-table td:first-child{text-align:left;font-weight:500}
 .cap-table tr:last-child td{border-bottom:none}
 .cap-table tr.total-row td{background:var(--pc-light);font-weight:600;color:var(--pc-dark)}
-.cap-table td.zero{color:#a0b8a0}
 .person-note{font-size:11px;color:#4a6a4a;font-style:italic;margin:0 10px 6px}
-.cap-note{font-size:11px;color:#4a6a4a;margin:0 10px 8px;background:#fff;padding:6px 12px;border-radius:4px;border:1px solid var(--pc-border)}
 </style>
 </head>
 <body>
@@ -106,16 +103,18 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
   <button class="btn btn-labeled" id="f-green" onclick="setFilter('green')"><span class="btn-main">Green</span><span class="btn-sub">Infrastructure</span></button>
   <button class="btn btn-labeled" id="f-panda" onclick="setFilter('panda')"><span class="btn-main">Panda</span><span class="btn-sub">Service</span></button>
   <div class="sep"></div>
-  <button class="btn nav" title="Previous month" onclick="shiftMonth(-1)">&#171;</button>
-  <button class="btn nav" title="Previous week" onclick="shiftWeek(-1)">&#8592;</button>
+  <button class="btn nav" onclick="shiftWeek(-1)">&#8592;</button>
   <span class="month-lbl" id="month-lbl"></span>
-  <button class="btn nav" title="Next week" onclick="shiftWeek(1)">&#8594;</button>
-  <button class="btn nav" title="Next month" onclick="shiftMonth(1)">&#187;</button>
+  <button class="btn nav" onclick="shiftWeek(1)">&#8594;</button>
   <button class="btn" onclick="goToday()">Today</button>
   <div class="sep"></div>
   <button class="btn" onclick="loadData()">&#8635; Refresh</button>
 </div>
-
+<div class="slider-row">
+  <span style="font-size:11px;color:#4a6a4a;white-space:nowrap" id="slider-year">2026</span>
+  <input type="range" id="month-slider" min="0" max="23" value="0" oninput="onSlider(this.value)">
+  <span class="slider-label" id="slider-lbl"></span>
+</div>
 <div class="summary-bar" id="summary-bar"><span style="color:#4a6a4a;font-size:12px">Loading...</span></div>
 <div class="legend" id="legend"></div>
 <div id="person-note" class="person-note" style="display:none">Click a person to filter. Click multiple to stack. Click again to deselect.</div>
@@ -128,6 +127,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 <script>
 const DATA_URL='https://dhuebner-pcc.github.io/operation-teams-calendar/calendar-data.json';
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const PEOPLE={
   'David':    {bg:'#c7e0c7',border:'#3B6D11',text:'#1e3d09',team:'management'},
@@ -175,12 +175,12 @@ function personColor(name,type){
 function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-function syncSlider(){
+function updateSlider(){
   const idx=(curY-baseYear)*12+curM;
-  const el=document.getElementById('month-slider');
-  if(el) el.value=Math.max(0,Math.min(23,idx));
+  const slider=document.getElementById('month-slider');
+  slider.value=Math.max(0,Math.min(23,idx));
   document.getElementById('slider-lbl').textContent=MONTHS[curM]+' '+curY;
-  document.getElementById('slider-year-start').textContent=baseYear;
+  document.getElementById('slider-year').textContent=baseYear+' — '+(baseYear+1);
   document.getElementById('month-lbl').textContent=MONTHS[curM]+' '+curY;
 }
 
@@ -188,29 +188,17 @@ function onSlider(val){
   const v=parseInt(val);
   curY=baseYear+Math.floor(v/12);
   curM=v%12;
-  syncSlider();
+  updateSlider();
   render();
 }
 
 function shiftWeek(d){
-  const dt=new Date(curY,curM,1);
-  dt.setDate(dt.getDate()+d*7);
-  curY=dt.getFullYear();curM=dt.getMonth();
-  syncSlider();render();
+  const first=new Date(curY,curM,1);
+  first.setDate(first.getDate()+d*7);
+  curY=first.getFullYear();curM=first.getMonth();
+  updateSlider();render();
 }
-
-function shiftMonth(d){
-  curM+=d;
-  if(curM>11){curM=0;curY++;}
-  if(curM<0){curM=11;curY--;}
-  syncSlider();
-  render();
-}
-
-function goToday(){
-  curY=today.getFullYear();curM=today.getMonth();
-  syncSlider();render();
-}
+function goToday(){curY=today.getFullYear();curM=today.getMonth();updateSlider();render();}
 
 function setFilter(f){
   if(f==='all'){activeFilters=new Set(['all']);}
@@ -253,20 +241,18 @@ async function loadData(){
       const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
       const calVal=(typeof cal==='object'?cal&&cal.Value:cal||'').toLowerCase().trim();
       const displayLabel=parts.length>1?parts.slice(1).join(' - '):title;
-      return{person,label:displayLabel,fulltitle:title,type,
-        start:(item.StartDate||'').substring(0,10),
-        end:(item.EndDate||'').substring(0,10),cal:calVal};
+      return{person,label:displayLabel,fulltitle:title,type,start:(item.StartDate||'').substring(0,10),end:(item.EndDate||'').substring(0,10),cal:calVal};
     }).filter(e=>e.start&&e.end);
     document.getElementById('last-sync').textContent='Last synced: '+new Date().toLocaleTimeString();
-    syncSlider();render();
+    updateSlider();render();
   }catch(err){
     document.getElementById('last-sync').textContent='Sync failed';
-    document.getElementById('cal-view').innerHTML='<div class="error">Error loading data: '+err.message+'</div>';
+    document.getElementById('cal-view').innerHTML='<div class="error">Error: '+err.message+'</div>';
   }
 }
 
 function renderSummary(entries){
-  const tbds=entries.filter(e=>e.person&&e.person.toUpperCase().startsWith('TBD')).length;
+  const tbds=entries.filter(e=>e.person.toUpperCase().startsWith('TBD')).length;
   document.getElementById('summary-bar').innerHTML=tbds>0
     ?'<div class="sum-item" style="color:#7a5a10">TBD slots: <strong>'+tbds+'</strong> — need staffing</div>'
     :'<div class="sum-item">No TBD slots — all positions staffed</div>';
@@ -281,7 +267,7 @@ function renderLegend(){
     leg.appendChild(d);
   });
   const tbd=document.createElement('div');tbd.className='leg';
-  tbd.innerHTML='<span class="leg-dot" style="background:#7a5a10"></span>TBD';
+  tbd.innerHTML='<span class="leg-dot" style="background:#7a5a10"></span>TBD — unstaffed';
   leg.appendChild(tbd);
 }
 
@@ -298,7 +284,6 @@ function renderCal(){
 
   const first=new Date(curY,curM,1);
   let ws=new Date(first);ws.setDate(ws.getDate()-ws.getDay());
-
   while(true){
     const days=[];
     for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);days.push(d);}
@@ -377,12 +362,13 @@ function renderRes(){
   const daysInMonth=new Date(curY,curM+1,0).getDate();
   const days=[];
   for(let i=1;i<=daysInMonth;i++) days.push(new Date(curY,curM,i));
+
   const monthEntries=entries.filter(e=>e.start&&e.end&&pd(e.start)<=days[days.length-1]&&pd(e.end)>=days[0]);
   const dynamicPeople=new Set();
   monthEntries.forEach(e=>dynamicPeople.add(e.person));
 
   function getTeam(name){
-    if(!name||name.toUpperCase().startsWith('TBD')) return 'needstaff';
+    if(name.toUpperCase().startsWith('TBD')) return 'needstaff';
     for(const[t,m] of Object.entries(CORE_TEAMS)){if(m.includes(name))return t;}
     return 'other';
   }
@@ -423,6 +409,7 @@ function renderRes(){
       ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.border+';margin-right:5px"></span>'+name;
       ntd.addEventListener('click',()=>togglePerson(name));
       tr.appendChild(ntd);
+
       days.forEach(d=>{
         const td=document.createElement('td');td.className='day-td';
         if(dk(d)===dk(today))td.classList.add('today-td');
@@ -451,39 +438,29 @@ function renderRes(){
 function renderCap(){
   const now=new Date();now.setHours(0,0,0,0);
   const periods=[
-    {label:'Next 30 days',days:30},
-    {label:'Next 60 days',days:60},
-    {label:'Next 90 days',days:90},
+    {label:'Next 30 days',end:new Date(now.getTime()+30*86400000)},
+    {label:'Next 60 days',end:new Date(now.getTime()+60*86400000)},
+    {label:'Next 90 days',end:new Date(now.getTime()+90*86400000)},
   ];
-
-  function countDays(entries,daysAhead){
-    if(!entries||!entries.length) return 0;
-    const end=new Date(now.getTime()+daysAhead*86400000);
+  function countDays(entries,start,end){
     let count=0;
     entries.forEach(e=>{
       if(!e.start||!e.end) return;
-      try{
-        const es=pd(e.start),ee=pd(e.end);
-        if(ee<now||es>end) return;
-        let d=new Date(Math.max(es.getTime(),now.getTime()));
-        const last=new Date(Math.min(ee.getTime(),end.getTime()));
-        while(d<=last){count++;d=new Date(d.getTime()+86400000);}
-      }catch(ex){}
+      const es=pd(e.start),ee=pd(e.end);
+      let d=new Date(Math.max(es.getTime(),start.getTime()));
+      const last=new Date(Math.min(ee.getTime(),end.getTime()));
+      while(d<=last){count++;d=new Date(d.getTime()+86400000);}
     });
     return count;
   }
 
   const wrap=document.getElementById('cap-view');wrap.innerHTML='';
-  const note=document.createElement('div');note.className='cap-note';
-  note.textContent='Counts all calendar days (including weekends) per person for each time window from today.';
-  wrap.appendChild(note);
-
   const cw=document.createElement('div');cw.className='cap-wrap';
 
   ['geek','green','panda'].forEach(teamKey=>{
     const teamEntries=RAW.filter(e=>e.cal===teamKey);
-    const core=(CORE_TEAMS[teamKey]||[]).slice();
-    const extra=[...new Set(teamEntries.map(e=>e.person))].filter(p=>p&&!core.includes(p)&&!p.toUpperCase().startsWith('TBD'));
+    const core=CORE_TEAMS[teamKey]||[];
+    const extra=[...new Set(teamEntries.map(e=>e.person))].filter(p=>!core.includes(p)&&!p.toUpperCase().startsWith('TBD'));
     const members=[...core,...extra];
 
     const section=document.createElement('div');section.className='cap-section';
@@ -494,14 +471,13 @@ function renderCap(){
     const tbl=document.createElement('table');tbl.className='cap-table';
     const thead=document.createElement('thead');
     const hr=document.createElement('tr');
-    ['Person',...periods.map(p=>p.label)].forEach(h=>{
+    ['Person','Next 30 days','Next 60 days','Next 90 days'].forEach(h=>{
       const th=document.createElement('th');th.textContent=h;hr.appendChild(th);
     });
     thead.appendChild(hr);tbl.appendChild(thead);
 
     const tbody=document.createElement('tbody');
-    const totals=periods.map(()=>0);
-
+    const totals=[0,0,0];
     members.forEach(name=>{
       const pe=teamEntries.filter(e=>e.person===name);
       const tr=document.createElement('tr');
@@ -510,16 +486,12 @@ function renderCap(){
       ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.border+';margin-right:5px"></span>'+name;
       tr.appendChild(ntd);
       periods.forEach((p,i)=>{
-        const count=countDays(pe,p.days);
+        const count=countDays(pe,now,p.end);
         totals[i]+=count;
-        const td=document.createElement('td');
-        td.textContent=count;
-        if(count===0)td.className='zero';
-        tr.appendChild(td);
+        const td=document.createElement('td');td.textContent=count;tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
-
     const tr=document.createElement('tr');tr.className='total-row';
     const ttd=document.createElement('td');ttd.textContent='Team Total';tr.appendChild(ttd);
     totals.forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.appendChild(td);});
@@ -533,10 +505,10 @@ function showTt(ev,e){
   const tt=document.getElementById('tt');tt.style.display='block';
   const c=personColor(e.person,e.type);
   const typeLabel={project:'Project',travel:'Travel day',off:'Off / PTO',remote:'Remote',tbd:'TBD — needs staffing'};
-  tt.innerHTML='<div style="font-weight:600;color:'+c.border+'">'+(e.person||'')+'</div>'+
-    '<div>'+(e.label||'')+'</div>'+
-    '<div style="color:#605e5c;font-size:11px;margin-top:2px">'+(e.start||'')+' \u2192 '+(e.end||'')+'</div>'+
-    '<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;margin-top:3px;background:'+c.bg+';color:'+c.text+'">'+(typeLabel[e.type]||e.type||'')+'</span>';
+  tt.innerHTML='<div style="font-weight:600;color:'+c.border+'">'+e.person+'</div>'+
+    '<div>'+e.label+'</div>'+
+    '<div style="color:#605e5c;font-size:11px;margin-top:2px">'+e.start+' \u2192 '+e.end+'</div>'+
+    '<span style="display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;margin-top:3px;background:'+c.bg+';color:'+c.text+'">'+(typeLabel[e.type]||e.type)+'</span>';
   tt.style.left=(ev.clientX+14)+'px';tt.style.top=(ev.clientY-10)+'px';
 }
 
