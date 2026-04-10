@@ -45,7 +45,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .bar{height:16px;border-radius:2px;font-size:10px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 5px;line-height:16px;cursor:pointer;pointer-events:all;margin:0 1px;border-left:3px solid transparent}
 .bar:hover{opacity:.85}
 .tooltip{position:fixed;background:#fff;border:1px solid var(--pc-border);border-radius:4px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;display:none;box-shadow:0 2px 8px rgba(0,0,0,.12);max-width:240px;line-height:1.6}
-.month-lbl{font-size:15px;font-weight:600;min-width:160px;text-align:center;color:var(--pc-dark)}
+.month-lbl{font-size:13px;font-weight:600;min-width:200px;text-align:center;color:var(--pc-dark)}
 .view-toggle{display:flex}
 .view-toggle .btn:first-child{border-radius:3px 0 0 3px;border-right:none}
 .view-toggle .btn:last-child{border-radius:0 3px 3px 0}
@@ -174,7 +174,15 @@ function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 function updateLabel(){
-  document.getElementById('month-lbl').textContent=MONTHS[curM]+' '+curY;
+  const viewEnd=new Date(viewStart);
+  viewEnd.setDate(viewStart.getDate()+34);
+  const s=viewStart,e=viewEnd;
+  const sm=MONTHS_SHORT[s.getMonth()],em=MONTHS_SHORT[e.getMonth()];
+  const sy=s.getFullYear(),ey=e.getFullYear();
+  let lbl=sm+' '+s.getDate();
+  if(sy!==ey) lbl+=' '+sy;
+  lbl+=' – '+em+' '+e.getDate()+' '+ey;
+  document.getElementById('month-lbl').textContent=lbl;
 }
 
 function shiftWeek(d){
@@ -295,6 +303,12 @@ function renderCal(){
       if(d.getMonth()!==curM)c.classList.add('other');      else if(dk(d)===dk(today))c.classList.add('today');
       if(d.getDay()===0||d.getDay()===6)c.classList.add('wknd');
       c.textContent=d.getDate();
+      if(d.getDate()===1){
+        const ml=document.createElement('span');
+        ml.style.cssText='font-size:9px;color:var(--pc-dark);font-weight:600;margin-left:3px;opacity:0.7';
+        ml.textContent=MONTHS_SHORT[d.getMonth()];
+        c.appendChild(ml);
+      }
       dnRow.appendChild(c);
     });
     week.appendChild(dnRow);
