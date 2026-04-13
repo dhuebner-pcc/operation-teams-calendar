@@ -230,8 +230,8 @@ async function loadData(){
       if(!['needstaff'].includes(k)) CORE_TEAMS[k]=[];
     });
     (data.members||[]).forEach(m=>{
-      const name=(m.Name||m.Title||'').trim();
-      const team=(m.Team||'other').toLowerCase().trim();
+      const name=(m.PersonName||m.Title||'').trim();
+      const team=(typeof m.Team==='object'?m.Team&&m.Team.Value:m.Team||'other').toLowerCase().trim();
       const hex=(m.Color||'#808080').trim();
       if(!name) return;
       const bg=hexToLight(hex);
