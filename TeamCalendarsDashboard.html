@@ -249,7 +249,6 @@ async function loadData(){
       const et=item.EntryType,cal=item.Calendar;
       const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
       const calVal=(typeof cal==='object'?cal&&cal.Value:cal||'').toLowerCase().trim();
-      const displayLabel=parts.length>1?parts.slice(1).join(' - '):title;
       return{person,label:displayLabel,fulltitle:title,type,
         start:(item.StartDate||'').substring(0,10),
         end:(item.EndDate||'').substring(0,10),cal:calVal};
