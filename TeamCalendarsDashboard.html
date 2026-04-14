@@ -402,6 +402,7 @@ function renderRes(){
   const dynamicPeople=new Set();
   monthEntries.forEach(e=>dynamicPeople.add(e.person));
   function getTeam(name){
+    if(!name) return 'other';
     if(name.toUpperCase().startsWith('TBD')) return 'needstaff';
     for(const[t,m] of Object.entries(CORE_TEAMS)){if(m.includes(name))return t;}
     return 'other';
