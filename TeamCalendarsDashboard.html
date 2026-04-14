@@ -366,7 +366,7 @@ function renderCal(){
         const bar=document.createElement('div');
         bar.className='bar';
         bar.style.cssText='background:'+c.bg+';border-left-color:'+c.border+';color:'+c.text+';grid-column:'+(startCol+1)+'/span '+(endCol-startCol+1);
-        bar.textContent=e.person?e.person+' \u2014 '+e.label:e.label;
+        bar.textContent=e.person?e.person+' \u2014 '+e.label:(e.label||e.fulltitle);
         bar.addEventListener('mouseenter',ev=>showTt(ev,e));
         bar.addEventListener('mouseleave',()=>{document.getElementById('tt').style.display='none';});
         sr.appendChild(bar);col=endCol+1;
