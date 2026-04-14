@@ -266,6 +266,7 @@ async function loadData(){
           displayLabel=title;
         }
       }
+      if(!displayLabel) displayLabel=title;
       if(!person) displayLabel=title;
       const et=item.EntryType,cal=item.Calendar;
       const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
