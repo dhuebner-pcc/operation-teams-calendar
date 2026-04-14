@@ -244,8 +244,19 @@ async function loadData(){
 
     RAW=(data.events||data).map(item=>{
       const title=(item.Title||'').trim();
-      const parts=title.split(' - ');
-      const person=parts[0].trim();
+      let person='',displayLabel=title;
+      if(title.includes(' - ')){
+        const parts=title.split(' - ');
+        person=parts[0].trim();
+        displayLabel=parts.slice(1).join(' - ');
+      } else if(title.includes('-')){
+        person=title.split('-')[0].trim();
+        displayLabel=title;
+      } else {
+        const firstWord=title.split(' ')[0].trim();
+        if(PEOPLE[firstWord]) person=firstWord;
+        displayLabel=title;
+      }
       const et=item.EntryType,cal=item.Calendar;
       const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
       const calVal=(typeof cal==='object'?cal&&cal.Value:cal||'').toLowerCase().trim();
