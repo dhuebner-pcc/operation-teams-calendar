@@ -250,13 +250,15 @@ async function loadData(){
         person=parts[0].trim();
         displayLabel=parts.slice(1).join(' - ');
       } else if(title.includes('-')){
-        person=title.split('-')[0].trim();
+        const p=title.split('-')[0].trim();
+        if(PEOPLE[p]){person=p;}
         displayLabel=title;
       } else {
         const firstWord=title.split(' ')[0].trim();
-        if(PEOPLE[firstWord]) person=firstWord;
+        if(PEOPLE[firstWord]){person=firstWord;}
         displayLabel=title;
       }
+      if(!person) person='unknown';
       const et=item.EntryType,cal=item.Calendar;
       const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
       const calVal=(typeof cal==='object'?cal&&cal.Value:cal||'').toLowerCase().trim();
