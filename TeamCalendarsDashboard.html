@@ -78,6 +78,19 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .cap-table tr:last-child td{border-bottom:none}
 .cap-table tr.total-row td{background:var(--pc-light);font-weight:600;color:var(--pc-dark)}
 .person-note{font-size:11px;color:#4a6a4a;font-style:italic;margin:0 10px 6px}
+.lst-wrap{margin:0 10px}
+.lst-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.lst-toolbar input{padding:4px 8px;border:1px solid var(--pc-border);border-radius:3px;font-size:12px;min-width:200px}
+.lst-table{width:100%;border-collapse:collapse;background:#fff;border-radius:4px;border:1px solid var(--pc-border);overflow:hidden}
+.lst-table th{background:var(--pc-light);color:var(--pc-dark);font-size:11px;font-weight:600;padding:6px 10px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
+.lst-table th:hover{background:var(--pc-border)}
+.lst-table th.sort-asc::after{content:' ↑'}
+.lst-table th.sort-desc::after{content:' ↓'}
+.lst-table td{padding:5px 10px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);font-size:12px}
+.lst-table tr:last-child td{border-bottom:none}
+.lst-table tr:hover td{background:var(--pc-light)}
+.lst-person{display:flex;align-items:center;gap:6px}
+.lst-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -91,6 +104,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
     <button class="btn active" id="btn-cal" onclick="setView('cal')">Wall Calendar</button>
     <button class="btn" id="btn-res" onclick="setView('res')">Resource View</button>
     <button class="btn" id="btn-cap" onclick="setView('cap')">Capacity</button>
+    <button class="btn" id="btn-lst" onclick="setView('lst')">List View</button>
   </div>
   <div class="sep"></div>
   <button class="btn btn-labeled active" id="f-all" onclick="setFilter('all')"><span class="btn-main">All</span><span class="btn-sub">Teams</span></button>
@@ -113,6 +127,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 <div id="cal-view"></div>
 <div id="res-view" style="display:none"></div>
 <div id="cap-view" style="display:none"></div>
+<div id="lst-view" style="display:none"></div>
 </div>
 <div class="tooltip" id="tt"></div>
 
@@ -205,7 +220,7 @@ function setFilter(f){
 }
 function setView(v){
   activeView=v;
-  ['cal','res','cap'].forEach(x=>{
+  ['cal','res','cap','lst'].forEach(x=>{
     document.getElementById('btn-'+x).classList.toggle('active',v===x);
     document.getElementById(x+'-view').style.display=v===x?'':'none';
   });
@@ -526,7 +541,124 @@ function renderCap(){
   wrap.appendChild(cw);
 }
 
-function showTt(ev,e){
+let lstSort={col:'start',dir:'asc'};
+let lstSearch='';
+
+function renderLst(){
+  const entries=filteredEntries();
+  const wrap=document.getElementById('lst-view');wrap.innerHTML='';
+  const lw=document.createElement('div');lw.className='lst-wrap';
+
+  const tb=document.createElement('div');tb.className='lst-toolbar';
+  const search=document.createElement('input');
+  search.type='text';search.placeholder='Search person, customer, project...';
+  search.value=lstSearch;
+  search.oninput=function(){lstSearch=this.value;renderLst();};
+  tb.appendChild(search);
+
+  const expBtn=document.createElement('button');
+  expBtn.className='btn';expBtn.textContent='⬇ Export CSV';
+  expBtn.onclick=exportCSV;
+  tb.appendChild(expBtn);
+
+  const countEl=document.createElement('span');
+  countEl.style.cssText='font-size:11px;color:#4a6a4a;margin-left:auto';
+  tb.appendChild(countEl);
+  lw.appendChild(tb);
+
+  const cols=[
+    {key:'person',label:'Person'},
+    {key:'team',label:'Team'},
+    {key:'label',label:'Project / Notes'},
+    {key:'type',label:'Type'},
+    {key:'start',label:'Start Date'},
+    {key:'end',label:'End Date'},
+    {key:'cal',label:'Calendar'},
+  ];
+
+  const tbl=document.createElement('table');tbl.className='lst-table';
+  const thead=document.createElement('thead');
+  const hr=document.createElement('tr');
+  cols.forEach(col=>{
+    const th=document.createElement('th');
+    th.textContent=col.label;
+    if(lstSort.col===col.key) th.className='sort-'+(lstSort.dir==='asc'?'asc':'desc');
+    th.onclick=()=>{
+      if(lstSort.col===col.key) lstSort.dir=lstSort.dir==='asc'?'desc':'asc';
+      else{lstSort.col=col.key;lstSort.dir='asc';}
+      renderLst();
+    };
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);tbl.appendChild(thead);
+
+  function getTeamLabel(name){
+    if(!name) return 'Other';
+    for(const[t,m] of Object.entries(CORE_TEAMS)){if(m.includes(name))return TEAM_LABELS[t]||t;}
+    return 'Other';
+  }
+
+  let rows=entries.map(e=>({...e,team:getTeamLabel(e.person)}));
+
+  if(lstSearch){
+    const q=lstSearch.toLowerCase();
+    rows=rows.filter(r=>(r.person+r.label+r.team+r.cal).toLowerCase().includes(q));
+  }
+
+  rows.sort((a,b)=>{
+    const av=a[lstSort.col]||'',bv=b[lstSort.col]||'';
+    return lstSort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+  });
+
+  countEl.textContent=rows.length+' entries';
+
+  const tbody=document.createElement('tbody');
+  rows.forEach(e=>{
+    const tr=document.createElement('tr');
+    const c=personColor(e.person,e.type);
+    const typeLabel={project:'Project',travel:'Travel',off:'Off/PTO',remote:'Remote',tbd:'TBD'};
+    [
+      {html:`<span class="lst-person"><span class="lst-dot" style="background:${c.border}"></span>${e.person||'—'}</span>`},
+      {text:e.team},
+      {text:e.label||e.fulltitle},
+      {text:typeLabel[e.type]||e.type},
+      {text:e.start},
+      {text:e.end},
+      {text:e.cal},
+    ].forEach(({text,html})=>{
+      const td=document.createElement('td');
+      if(html) td.innerHTML=html;
+      else td.textContent=text||'';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);lw.appendChild(tbl);wrap.appendChild(lw);
+}
+
+function exportCSV(){
+  const entries=filteredEntries();
+  function getTeamLabel(name){
+    if(!name) return 'Other';
+    for(const[t,m] of Object.entries(CORE_TEAMS)){if(m.includes(name))return TEAM_LABELS[t]||t;}
+    return 'Other';
+  }
+  const headers=['Person','Team','Project / Notes','Type','Start Date','End Date','Calendar'];
+  const rows=entries.map(e=>[
+    e.person||'',
+    getTeamLabel(e.person),
+    e.label||e.fulltitle||'',
+    e.type||'',
+    e.start||'',
+    e.end||'',
+    e.cal||'',
+  ]);
+  const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='operations-calendar-'+new Date().toISOString().substring(0,10)+'.csv';
+  a.click();
+}
   const tt=document.getElementById('tt');tt.style.display='block';
   const c=personColor(e.person,e.type);
   const typeLabel={project:'Project',travel:'Travel day',off:'Off / PTO',remote:'Remote',tbd:'TBD — needs staffing'};
@@ -540,7 +672,8 @@ function showTt(ev,e){
 function render(){
   if(activeView==='cal') renderCal();
   else if(activeView==='res') renderRes();
-  else renderCap();
+  else if(activeView==='cap') renderCap();
+  else if(activeView==='lst') renderLst();
 }
 
 loadData();
