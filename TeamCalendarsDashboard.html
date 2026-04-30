@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +7,12 @@
 <title>Operations Teams Calendars</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--pc-dark:#2d5a2d;--pc-light:#e8f2e8;--pc-sage:#8fba6a;--pc-border:#d0e4d0;--pc-text:#1a3a1a}
-body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:13px}
+:root{--pc-dark:#2d5a2d;--pc-light:#e8f2e8;--pc-sage:#8fba6a;--pc-border:#d0e4d0;--pc-text:#1a3a1a;--bg:#f0f4f0;--surface:#fff;--surface2:#f5f8f5;--text-primary:#1a3a1a;--text-secondary:#4a6a4a;--text-muted:#a0b8a0}
+body{font-family:Segoe UI,sans-serif;background:var(--bg);color:var(--text-primary);font-size:13px}
+
 .app{max-width:1400px;margin:0 auto}
-.header{background:var(--pc-dark);padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.toolbar{display:flex;align-items:center;gap:8px;margin:0 10px 6px;flex-wrap:wrap}
+.header{background:var(--pc-dark);padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;position:sticky;top:0;z-index:50}
+.toolbar{display:flex;align-items:center;gap:8px;margin:0 10px 6px;flex-wrap:wrap;position:sticky;top:47px;z-index:49;background:#f0f4f0;padding:4px 0}
 .btn{padding:4px 12px;border:1px solid var(--pc-border);background:#fff;border-radius:3px;cursor:pointer;font-size:12px;color:var(--pc-text);line-height:1.4}
 .btn:hover{background:var(--pc-light)}
 .btn.active{background:var(--pc-dark);color:#fff;border-color:var(--pc-dark)}
@@ -30,7 +32,8 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .day-nums{display:grid;grid-template-columns:repeat(7,1fr)}
 .dn{padding:3px 5px;font-size:11px;color:#4a6a4a;border-right:1px solid var(--pc-border);min-height:20px}
 .dn:last-child{border-right:none}
-.dn.today{color:var(--pc-dark);font-weight:700}
+.dn.today{color:#fff;font-weight:700;background:var(--pc-dark);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:1px 4px}
+.dn.month-start,.dn.month-start.other,.dn.month-start.wknd{color:#fff;font-weight:700;background:#0078d4;border-radius:10px;padding:1px 6px;display:inline-flex;align-items:center;gap:3px;margin:1px 3px}
 .dn.other{color:#a0b8a0}
 .dn.wknd{background:#f5f8f5}
 .entries-grid{display:grid;grid-template-columns:repeat(7,1fr);position:relative}
@@ -78,6 +81,29 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 .cap-table tr:last-child td{border-bottom:none}
 .cap-table tr.total-row td{background:var(--pc-light);font-weight:600;color:var(--pc-dark)}
 .person-note{font-size:11px;color:#4a6a4a;font-style:italic;margin:0 10px 6px}
+.lst-wrap{margin:0 10px}
+.lst-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;background:#fff;padding:8px 12px;border-radius:4px;border:1px solid var(--pc-border)}
+.lst-search{padding:4px 8px;border:1px solid var(--pc-border);border-radius:3px;font-size:12px;min-width:220px}
+.lst-count{font-size:11px;color:#4a6a4a;margin-left:auto}
+.lst-table-wrap{background:#fff;border-radius:4px;border:1px solid var(--pc-border);overflow-x:auto}
+.lst-table{width:100%;border-collapse:collapse;min-width:700px}
+.lst-table th{background:var(--pc-light);color:var(--pc-dark);font-size:11px;font-weight:600;padding:0;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);white-space:nowrap;position:relative;user-select:none}
+.lst-th-inner{display:flex;align-items:center;gap:4px;padding:6px 10px;cursor:pointer}
+.lst-th-inner:hover{background:var(--pc-border)}
+.lst-sort-btn{font-size:10px;opacity:0.5}
+.lst-filter-btn{padding:2px 4px;font-size:10px;background:transparent;border:none;cursor:pointer;color:var(--pc-dark);opacity:0.6;flex-shrink:0}
+.lst-filter-btn:hover{opacity:1}
+.lst-filter-btn.active{opacity:1;color:#0078d4}
+.lst-dropdown{position:absolute;top:100%;left:0;background:#fff;border:1px solid var(--pc-border);border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:100;min-width:160px;max-height:250px;overflow-y:auto;padding:4px 0}
+.lst-dropdown label{display:flex;align-items:center;gap:6px;padding:4px 10px;font-size:12px;cursor:pointer;color:#1a3a1a}
+.lst-dropdown label:hover{background:var(--pc-light)}
+.lst-dropdown .dd-actions{display:flex;gap:4px;padding:4px 10px;border-top:1px solid var(--pc-border);margin-top:2px}
+.lst-dropdown .dd-actions button{font-size:11px;padding:2px 6px;border:1px solid var(--pc-border);border-radius:2px;cursor:pointer;background:#fff;color:var(--pc-dark)}
+.lst-table td{padding:5px 10px;border-bottom:1px solid var(--pc-border);border-right:1px solid var(--pc-border);font-size:12px;white-space:nowrap}
+.lst-table tr:last-child td{border-bottom:none}
+.lst-table tr:hover td{background:#f9fbf9}
+.lst-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.lst-badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:500}
 </style>
 </head>
 <body>
@@ -91,6 +117,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
     <button class="btn active" id="btn-cal" onclick="setView('cal')">Wall Calendar</button>
     <button class="btn" id="btn-res" onclick="setView('res')">Resource View</button>
     <button class="btn" id="btn-cap" onclick="setView('cap')">Capacity</button>
+    <button class="btn" id="btn-lst" onclick="setView('lst')">List View</button>
   </div>
   <div class="sep"></div>
   <button class="btn btn-labeled active" id="f-all" onclick="setFilter('all')"><span class="btn-main">All</span><span class="btn-sub">Teams</span></button>
@@ -113,6 +140,7 @@ body{font-family:Segoe UI,sans-serif;background:#f0f4f0;color:#1a3a1a;font-size:
 <div id="cal-view"></div>
 <div id="res-view" style="display:none"></div>
 <div id="cap-view" style="display:none"></div>
+<div id="lst-view" style="display:none"></div>
 </div>
 <div class="tooltip" id="tt"></div>
 
@@ -164,6 +192,10 @@ function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
 function updateLabel(){
+  if(activeView==='cal'){
+    document.getElementById('month-lbl').textContent='Rolling 34-week view';
+    return;
+  }
   const e=new Date(viewStart);e.setDate(viewStart.getDate()+34);
   const s=viewStart;
   let lbl=MONTHS_SHORT[s.getMonth()]+' '+s.getDate();
@@ -173,12 +205,24 @@ function updateLabel(){
 }
 
 function shiftWeek(d){
+  if(activeView==='cal'){
+    const weekH=document.querySelector('.week');
+    const h=weekH?weekH.offsetHeight:120;
+    window.scrollBy({top:d*h,behavior:'smooth'});
+    return;
+  }
   viewStart=new Date(viewStart);
   viewStart.setDate(viewStart.getDate()+d*7);
   curY=viewStart.getFullYear();curM=viewStart.getMonth();
   updateLabel();render();
 }
 function shiftMonth(d){
+  if(activeView==='cal'){
+    const weekH=document.querySelector('.week');
+    const h=weekH?weekH.offsetHeight:120;
+    window.scrollBy({top:d*4*h,behavior:'smooth'});
+    return;
+  }
   curM+=d;
   if(curM>11){curM=0;curY++;}
   if(curM<0){curM=11;curY--;}
@@ -187,6 +231,11 @@ function shiftMonth(d){
   updateLabel();render();
 }
 function goToday(){
+  if(activeView==='cal'){
+    const todayCell=document.querySelector('.dn.today');
+    if(todayCell) todayCell.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   viewStart=new Date(today);
   viewStart.setDate(today.getDate()-today.getDay());
   curY=today.getFullYear();curM=today.getMonth();
@@ -205,11 +254,12 @@ function setFilter(f){
 }
 function setView(v){
   activeView=v;
-  ['cal','res','cap'].forEach(x=>{
+  ['cal','res','cap','lst'].forEach(x=>{
     document.getElementById('btn-'+x).classList.toggle('active',v===x);
     document.getElementById(x+'-view').style.display=v===x?'':'none';
   });
   document.getElementById('person-note').style.display=v==='res'?'block':'none';
+  if(v==='lst') document.getElementById('lst-view').innerHTML='';
   render();
 }
 function filteredEntries(){
@@ -224,7 +274,6 @@ async function loadData(){
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
 
-    // Build PEOPLE and CORE_TEAMS from members list
     Object.keys(PEOPLE).forEach(k=>delete PEOPLE[k]);
     Object.keys(CORE_TEAMS).forEach(k=>{
       if(!['needstaff'].includes(k)) CORE_TEAMS[k]=[];
@@ -235,9 +284,10 @@ async function loadData(){
       const name=(m.PersonName||m.Title||'').trim();
       const team=(typeof m.Team==='object'?m.Team&&m.Team.Value:m.Team||'other').toLowerCase().trim();
       const hex=(m.Color||'#808080').trim();
+      const targetDays=typeof m.TargetDays==='number'?m.TargetDays:0;
       if(!name) return;
       const bg=hexToLight(hex);
-      PEOPLE[name]={bg,border:hex,text:hexToDark(hex),team};
+      PEOPLE[name]={bg,border:hex,text:hexToDark(hex),team,targetDays};
       if(CORE_TEAMS[team]) CORE_TEAMS[team].push(name);
       else CORE_TEAMS['other'].push(name);
     });
@@ -269,17 +319,31 @@ async function loadData(){
       if(!displayLabel) displayLabel=title;
       if(!person) displayLabel=title;
       const et=item.EntryType,cal=item.Calendar;
-      const type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
+      // Auto-detect type from title if stored as 'project'
+      let type=(typeof et==='object'?et&&et.Value:et||'project').toLowerCase().trim();
+      if(type==='project'){
+        const tl=title.toLowerCase();
+        if(tl.includes('travel')) type='travel';
+        else if(tl.includes(' out')||tl.includes('-out')||tl.includes('off')||tl.includes('pto')) type='off';
+        else if(tl.includes('remote')) type='remote';
+        else if(title.toUpperCase().startsWith('TBD')) type='tbd';
+      }
       const calVal=(typeof cal==='object'?cal&&cal.Value:cal||'').toLowerCase().trim();
       return{person,label:displayLabel,fulltitle:title,type,
         start:(item.StartDate||'').substring(0,10),
         end:(item.EndDate||'').substring(0,10),cal:calVal};
     }).filter(e=>e.start&&e.end);
+
     document.getElementById('last-sync').textContent='Last synced: '+new Date().toLocaleTimeString();
     viewStart=new Date(today);
     viewStart.setDate(today.getDate()-today.getDay());
     curY=viewStart.getFullYear();curM=viewStart.getMonth();
     updateLabel();render();
+    // Scroll to today on wall calendar
+    setTimeout(()=>{
+      const todayCell=document.querySelector('.dn.today');
+      if(todayCell) todayCell.scrollIntoView({behavior:'smooth',block:'center'});
+    },100);
   }catch(err){
     document.getElementById('last-sync').textContent='Sync failed';
     document.getElementById('cal-view').innerHTML='<div class="error">Error: '+err.message+'</div>';
@@ -316,8 +380,11 @@ function renderCal(){
   });
   cw.appendChild(dowHdr);
 
-  let ws=new Date(viewStart);
-  for(let w=0;w<5;w++){
+  // Rolling window: 8 weeks back, 26 weeks forward = 34 weeks total
+  let ws=new Date(today);
+  ws.setDate(today.getDate()-today.getDay()-(8*7));
+  const totalWeeks=34;
+  for(let w=0;w<totalWeeks;w++){
     const days=[];
     for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);days.push(d);}
     const week=document.createElement('div');week.className='week';
@@ -329,8 +396,9 @@ function renderCal(){
       if(d.getDay()===0||d.getDay()===6)c.classList.add('wknd');
       c.textContent=d.getDate();
       if(d.getDate()===1){
+        c.classList.add('month-start');
         const ml=document.createElement('span');
-        ml.style.cssText='font-size:9px;color:var(--pc-dark);font-weight:600;margin-left:3px;opacity:0.7';
+        ml.style.cssText='font-size:9px;color:rgba(255,255,255,0.85);font-weight:600;margin-left:2px';
         ml.textContent=MONTHS_SHORT[d.getMonth()];
         c.appendChild(ml);
       }
@@ -414,8 +482,20 @@ function renderRes(){
   const hr=document.createElement('tr');
   const nth=document.createElement('th');nth.textContent='Person';nth.style.textAlign='left';nth.style.minWidth='120px';hr.appendChild(nth);
   days.forEach(d=>{
-    const th=document.createElement('th');th.textContent=d.getDate();
-    if(dk(d)===dk(today))th.style.color='#0078d4';
+    const th=document.createElement('th');
+    if(dk(d)===dk(today)){
+      th.style.color='#fff';
+      th.style.background='var(--pc-dark)';
+      th.style.borderRadius='50%';
+    } else if(d.getDate()===1){
+      th.style.color='#fff';
+      th.style.background='#0078d4';
+      th.style.borderRadius='4px';
+      th.style.padding='2px 4px';
+    } else {
+      th.textContent=d.getDate();
+    }
+    if(!th.textContent) th.textContent=d.getDate();
     if(d.getDay()===0||d.getDay()===6)th.style.opacity='0.4';
     hr.appendChild(th);
   });
@@ -467,11 +547,9 @@ function renderRes(){
 
 function renderCap(){
   const now=new Date();now.setHours(0,0,0,0);
-  const periods=[
-    {label:'Next 30 days',end:new Date(now.getTime()+30*86400000)},
-    {label:'Next 60 days',end:new Date(now.getTime()+60*86400000)},
-    {label:'Next 90 days',end:new Date(now.getTime()+90*86400000)},
-  ];
+  const yearStart=new Date(now.getFullYear(),0,1);
+  const yearEnd=new Date(now.getFullYear(),11,31);
+
   function countDays(entries,start,end){
     let count=0;
     entries.forEach(e=>{
@@ -483,43 +561,88 @@ function renderCap(){
     });
     return count;
   }
+
+  function statusBadge(pct,hasTarget){
+    if(!hasTarget) return '<span class="status-badge" style="background:#f0f0f0;color:#808080">No target</span>';
+    if(pct>=100) return '<span class="status-badge" style="background:#fde8e8;color:#c00000">Over</span>';
+    if(pct>=80) return '<span class="status-badge" style="background:#fff3cd;color:#856404">Near</span>';
+    return '<span class="status-badge" style="background:#e8f5e8;color:#2d5a2d">OK</span>';
+  }
+
   const wrap=document.getElementById('cap-view');wrap.innerHTML='';
   const cw=document.createElement('div');cw.className='cap-wrap';
+
   ['geek','green','panda'].forEach(teamKey=>{
-    const teamEntries=RAW.filter(e=>e.cal===teamKey);
-    const core=CORE_TEAMS[teamKey]||[];
-    const extra=[...new Set(teamEntries.map(e=>e.person))].filter(p=>!core.includes(p)&&!p.toUpperCase().startsWith('TBD'));
-    const members=[...core,...extra];
+    if(!activeFilters.has('all')&&!activeFilters.has(teamKey)) return;
+    const members=CORE_TEAMS[teamKey]||[];
+    if(!members.length) return;
+
+    const teamLabel={geek:'Geek — Physical Security',green:'Green — Infrastructure',panda:'Panda — Service'}[teamKey];
     const section=document.createElement('div');section.className='cap-section';
-    const hdr=document.createElement('div');hdr.className='cap-hdr';
-    hdr.textContent={geek:'Geek — Physical Security',green:'Green — Infrastructure',panda:'Panda — Service'}[teamKey];
+    const hdr=document.createElement('div');hdr.className='cap-hdr';hdr.textContent=teamLabel;
     section.appendChild(hdr);
+
     const tbl=document.createElement('table');tbl.className='cap-table';
     const thead=document.createElement('thead');
     const hr=document.createElement('tr');
-    ['Person','Next 30 days','Next 60 days','Next 90 days'].forEach(h=>{
+    ['Person','Target Days','Scheduled YTD','Scheduled Full Year','Remaining','Utilization','Status'].forEach(h=>{
       const th=document.createElement('th');th.textContent=h;hr.appendChild(th);
     });
     thead.appendChild(hr);tbl.appendChild(thead);
+
     const tbody=document.createElement('tbody');
-    const totals=[0,0,0];
+    let totTarget=0,totSchedFull=0;
+
     members.forEach(name=>{
-      const pe=teamEntries.filter(e=>e.person===name);
+      const p=PEOPLE[name];if(!p) return;
+      const target=p.targetDays||0;
+      const pe=RAW.filter(e=>e.person===name);
+      const schedYTD=countDays(pe,yearStart,now);
+      const schedFull=countDays(pe,yearStart,yearEnd);
+      const remaining=target>0?Math.max(0,target-schedFull):0;
+      const pct=target>0?Math.round((schedFull/target)*100):0;
+      totTarget+=target;totSchedFull+=schedFull;
+
       const tr=document.createElement('tr');
-      const ntd=document.createElement('td');
       const c=personColor(name,'project');
-      ntd.innerHTML='<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.border+';margin-right:5px"></span>'+name;
-      tr.appendChild(ntd);
-      periods.forEach((p,i)=>{
-        const count=countDays(pe,now,p.end);
-        totals[i]+=count;
-        const td=document.createElement('td');td.textContent=count;tr.appendChild(td);
+      const cells=[
+        {html:'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c.border+';margin-right:5px"></span>'+name,left:true},
+        {text:target||'—'},
+        {text:schedYTD},
+        {text:schedFull},
+        {text:target>0?remaining:'—'},
+        {text:target>0?pct+'%':'—'},
+        {html:statusBadge(pct,target>0)},
+      ];
+      cells.forEach(cell=>{
+        const td=document.createElement('td');
+        if(cell.html) td.innerHTML=cell.html;
+        else td.textContent=cell.text;
+        if(!cell.left) td.style.textAlign='right';
+        tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
+
+    // Total row
+    const totPct=totTarget>0?Math.round((totSchedFull/totTarget)*100):0;
     const tr=document.createElement('tr');tr.className='total-row';
-    const ttd=document.createElement('td');ttd.textContent='Team Total';tr.appendChild(ttd);
-    totals.forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.appendChild(td);});
+    const cells=[
+      {text:'Team Total',left:true},
+      {text:totTarget||'—'},
+      {text:'—'},
+      {text:totSchedFull},
+      {text:totTarget>0?Math.max(0,totTarget-totSchedFull):'—'},
+      {text:totTarget>0?totPct+'%':'—'},
+      {html:statusBadge(totPct,totTarget>0)},
+    ];
+    cells.forEach(cell=>{
+      const td=document.createElement('td');
+      if(cell.html) td.innerHTML=cell.html;
+      else td.textContent=cell.text;
+      if(!cell.left) td.style.textAlign='right';
+      tr.appendChild(td);
+    });
     tbody.appendChild(tr);
     tbl.appendChild(tbody);section.appendChild(tbl);cw.appendChild(section);
   });
@@ -540,7 +663,204 @@ function showTt(ev,e){
 function render(){
   if(activeView==='cal') renderCal();
   else if(activeView==='res') renderRes();
-  else renderCap();
+  else if(activeView==='cap') renderCap();
+  else if(activeView==='lst') renderLst();
+}
+
+// List View
+let lstSearch='';
+let lstSortCol='start',lstSortDir='asc';
+let lstColFilters={person:null,team:null,label:null,type:null,start:null,end:null,cal:null};
+let lstOpenDropdown=null;
+
+const LST_TYPE_LABEL={project:'Project',travel:'Travel',off:'Off/PTO',remote:'Remote',tbd:'TBD'};
+const LST_TEAM_LABEL={management:'Management',geek:'Geek',green:'Green',panda:'Panda',other:'Other'};
+const LST_TYPE_BG={project:'#e8f2e8',travel:'#e6f1fb',off:'#f0f0f0',remote:'#e0f0e0',tbd:'#f5e8d0'};
+
+function lstGetRows(){
+  return filteredEntries().map(e=>({
+    ...e,
+    team:PEOPLE[e.person]?PEOPLE[e.person].team:'other',
+  }));
+}
+
+function lstApplyFilters(rows){
+  let r=rows;
+  if(lstSearch){
+    const q=lstSearch.toLowerCase();
+    r=r.filter(e=>(e.person+e.label+e.cal).toLowerCase().includes(q));
+  }
+  Object.entries(lstColFilters).forEach(([col,vals])=>{
+    if(!vals||vals.size===0) return;
+    r=r.filter(e=>{
+      const v=col==='team'?LST_TEAM_LABEL[e.team]||e.team:
+               col==='type'?LST_TYPE_LABEL[e.type]||e.type:
+               (e[col]||'');
+      return vals.has(v);
+    });
+  });
+  r.sort((a,b)=>{
+    const av=lstSortCol==='team'?(LST_TEAM_LABEL[a.team]||a.team):
+             lstSortCol==='type'?(LST_TYPE_LABEL[a.type]||a.type):(a[lstSortCol]||'');
+    const bv=lstSortCol==='team'?(LST_TEAM_LABEL[b.team]||b.team):
+             lstSortCol==='type'?(LST_TYPE_LABEL[b.type]||b.type):(b[lstSortCol]||'');
+    return lstSortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+  });
+  return r;
+}
+
+function lstGetUniqueVals(rows,col){
+  const vals=new Set();
+  rows.forEach(e=>{
+    const v=col==='team'?LST_TEAM_LABEL[e.team]||e.team:
+             col==='type'?LST_TYPE_LABEL[e.type]||e.type:
+             (e[col]||'');
+    if(v) vals.add(v);
+  });
+  return [...vals].sort();
+}
+
+function lstCloseDropdown(){
+  if(lstOpenDropdown){lstOpenDropdown.remove();lstOpenDropdown=null;}
+}
+
+function lstOpenFilter(col,btn,allRows){
+  lstCloseDropdown();
+  const dd=document.createElement('div');dd.className='lst-dropdown';
+  const vals=lstGetUniqueVals(allRows,col);
+  const active=lstColFilters[col];
+  vals.forEach(v=>{
+    const lbl=document.createElement('label');
+    const cb=document.createElement('input');
+    cb.type='checkbox';cb.value=v;
+    cb.checked=!active||active.has(v);
+    lbl.appendChild(cb);lbl.appendChild(document.createTextNode(' '+v));
+    dd.appendChild(lbl);
+  });
+  const actions=document.createElement('div');actions.className='dd-actions';
+  const allBtn=document.createElement('button');allBtn.textContent='All';
+  allBtn.onclick=()=>{lstColFilters[col]=null;lstCloseDropdown();renderLst();};
+  const applyBtn=document.createElement('button');applyBtn.textContent='Apply';applyBtn.style.background=getComputedStyle(document.documentElement).getPropertyValue('--pc-dark').trim();applyBtn.style.color='#fff';
+  applyBtn.onclick=()=>{
+    const checked=new Set([...dd.querySelectorAll('input:checked')].map(x=>x.value));
+    lstColFilters[col]=checked.size===vals.length?null:checked;
+    lstCloseDropdown();renderLst();
+  };
+  actions.appendChild(allBtn);actions.appendChild(applyBtn);
+  dd.appendChild(actions);
+  btn.closest('th').appendChild(dd);
+  lstOpenDropdown=dd;
+  setTimeout(()=>document.addEventListener('click',function handler(e){
+    if(!dd.contains(e.target)){lstCloseDropdown();document.removeEventListener('click',handler);}
+  }),0);
+}
+
+function renderLst(){
+  const wrap=document.getElementById('lst-view');
+  // Only build toolbar once
+  if(!document.getElementById('lst-tbody')){
+    wrap.innerHTML='';
+    const lw=document.createElement('div');lw.className='lst-wrap';
+    const tb=document.createElement('div');tb.className='lst-toolbar';
+    const search=document.createElement('input');
+    search.className='lst-search';search.type='text';search.id='lst-search-input';
+    search.placeholder='Search person, project...';search.value=lstSearch;
+    search.oninput=function(){lstSearch=this.value;lstRenderTable();};
+    tb.appendChild(search);
+    const expBtn=document.createElement('button');expBtn.className='btn';expBtn.textContent='⬇ Export CSV';expBtn.onclick=lstExportCSV;
+    tb.appendChild(expBtn);
+    const count=document.createElement('span');count.className='lst-count';count.id='lst-count';
+    tb.appendChild(count);
+    lw.appendChild(tb);
+    const tw=document.createElement('div');tw.className='lst-table-wrap';
+    const tbl=document.createElement('table');tbl.className='lst-table';tbl.id='lst-tbl';
+    const thead=document.createElement('thead');thead.id='lst-thead';
+    tbl.appendChild(thead);
+    const tbody=document.createElement('tbody');tbody.id='lst-tbody';
+    tbl.appendChild(tbody);
+    tw.appendChild(tbl);lw.appendChild(tw);
+    wrap.appendChild(lw);
+  }
+  lstRenderTable();
+}
+
+function lstRenderTable(){
+  const allRows=lstGetRows();
+  const rows=lstApplyFilters(allRows);
+  document.getElementById('lst-count').textContent=rows.length+' entries';
+
+  // Rebuild header
+  const thead=document.getElementById('lst-thead');thead.innerHTML='';
+  const hr=document.createElement('tr');
+  const cols=[
+    {key:'person',label:'Person'},
+    {key:'team',label:'Team'},
+    {key:'label',label:'Project / Notes'},
+    {key:'type',label:'Type'},
+    {key:'start',label:'Start Date'},
+    {key:'end',label:'End Date'},
+    {key:'cal',label:'Calendar'},
+  ];
+  cols.forEach(col=>{
+    const th=document.createElement('th');
+    const inner=document.createElement('div');inner.className='lst-th-inner';
+    const lbl=document.createElement('span');lbl.textContent=col.label;
+    const sortIco=document.createElement('span');sortIco.className='lst-sort-btn';
+    if(lstSortCol===col.key) sortIco.textContent=lstSortDir==='asc'?'↑':'↓';
+    inner.onclick=()=>{
+      if(lstSortCol===col.key) lstSortDir=lstSortDir==='asc'?'desc':'asc';
+      else{lstSortCol=col.key;lstSortDir='asc';}
+      lstRenderTable();
+    };
+    inner.appendChild(lbl);inner.appendChild(sortIco);
+    const filterBtn=document.createElement('button');filterBtn.className='lst-filter-btn';
+    filterBtn.textContent='▾';
+    if(lstColFilters[col.key]) filterBtn.classList.add('active');
+    filterBtn.onclick=e=>{e.stopPropagation();lstOpenFilter(col.key,filterBtn,allRows);};
+    th.appendChild(inner);th.appendChild(filterBtn);
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+
+  // Rebuild body
+  const tbody=document.getElementById('lst-tbody');tbody.innerHTML='';
+  rows.forEach(e=>{
+    const tr=document.createElement('tr');
+    const c=personColor(e.person,e.type);
+    [
+      {html:`<span class="lst-dot" style="background:${c.border}"></span>${e.person||'—'}`},
+      {text:LST_TEAM_LABEL[e.team]||e.team||'—'},
+      {text:e.label||e.fulltitle||'—'},
+      {html:`<span class="lst-badge" style="background:${LST_TYPE_BG[e.type]||'#f0f0f0'}">${LST_TYPE_LABEL[e.type]||e.type||'—'}</span>`},
+      {text:e.start||'—'},
+      {text:e.end||'—'},
+      {text:e.cal||'—'},
+    ].forEach(cell=>{
+      const td=document.createElement('td');
+      if(cell.html) td.innerHTML=cell.html;
+      else td.textContent=cell.text;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function lstExportCSV(){
+  const allRows=lstGetRows();
+  const rows=lstApplyFilters(allRows);
+  const headers=['Person','Team','Project / Notes','Type','Start Date','End Date','Calendar'];
+  const data=[headers,...rows.map(e=>[
+    e.person||'',
+    LST_TEAM_LABEL[e.team]||e.team||'',
+    e.label||e.fulltitle||'',
+    LST_TYPE_LABEL[e.type]||e.type||'',
+    e.start||'',e.end||'',e.cal||'',
+  ])];
+  const csv=data.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='operations-calendar-'+new Date().toISOString().substring(0,10)+'.csv';
+  a.click();
 }
 
 loadData();
