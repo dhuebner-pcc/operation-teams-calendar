@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Operations Teams Calendars</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232d5a2d'/%3E%3Ctext x='16' y='22' font-family='Segoe UI,sans-serif' font-size='13' font-weight='700' fill='%238fba6a' text-anchor='middle'%3EPC%3C/text%3E%3C/svg%3E">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--pc-dark:#2d5a2d;--pc-light:#e8f2e8;--pc-sage:#8fba6a;--pc-border:#d0e4d0;--pc-text:#1a3a1a;--bg:#f0f4f0;--surface:#fff;--surface2:#f5f8f5;--text-primary:#1a3a1a;--text-secondary:#4a6a4a;--text-muted:#a0b8a0}
@@ -118,7 +119,7 @@ body{font-family:Segoe UI,sans-serif;background:var(--bg);color:var(--text-prima
       <div class="view-toggle">
         <button class="btn active" id="btn-cal" onclick="setView('cal')">Wall Calendar</button>
         <button class="btn" id="btn-res" onclick="setView('res')">Resource View</button>
-        <button class="btn" id="btn-cap" onclick="setView('cap')">Capacity</button>
+        <button class="btn" id="btn-cap" onclick="setView('cap')" style="display:none">Capacity</button>
         <button class="btn" id="btn-lst" onclick="setView('lst')">List View</button>
       </div>
       <div class="sep"></div>
